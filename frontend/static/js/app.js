@@ -70,3 +70,7 @@ function switchTab(name) {
 
 // Start polling
 if (document.getElementById('notifWrap')) { poll(); setInterval(poll, 15000); }
+
+// ── Password visibility toggle ───────────────────
+function showPw(id) { document.getElementById(id).type = 'text'; }
+function hidePw(id) { document.getElementById(id).type = 'password'; }

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ClimAlert Valencia — Gestión de Emergencias Climáticas personalizada">
+    <meta name="theme-color" content="#090C10">
+    <title>{% block title %}ClimAlert Valencia{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+{% if session.get('uid') %}
+<!-- ══ NAVBAR ══════════════════════════════════════════════════════════ -->
+<nav class="nav" role="navigation" aria-label="Navegación principal">
+    <div class="nav-inner">
+        <a href="{{ url_for('index') }}" class="nav-brand" aria-label="ClimAlert Valencia — Inicio">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="var(--accent)" stroke="var(--accent)"/></svg>
+            <span>ClimAlert <b>VLC</b></span>
+        </a>
+
+        <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+
+        <div class="nav-links">
+            {% if session.get('rol') == 'backoffice' %}
+            <a href="{{ url_for('bo_dashboard') }}" class="nav-link {{ 'on' if request.endpoint=='bo_dashboard' }}">Panel</a>
+            <a href="{{ url_for('bo_weather') }}" class="nav-link {{ 'on' if request.endpoint=='bo_weather' }}">Meteorología</a>
+            <a href="{{ url_for('bo_historial') }}" class="nav-link {{ 'on' if request.endpoint=='bo_historial' }}">Historial</a>
+            {% else %}
+            <a href="{{ url_for('citizen_dashboard') }}" class="nav-link {{ 'on' if request.endpoint=='citizen_dashboard' }}">Inicio</a>
+            <a href="{{ url_for('citizen_weather') }}" class="nav-link {{ 'on' if request.endpoint=='citizen_weather' }}">Meteorología</a>
+            <a href="{{ url_for('citizen_historial') }}" class="nav-link {{ 'on' if request.endpoint=='citizen_historial' }}">Historial</a>
+            {% endif %}
+            <a href="{{ url_for('perfil') }}" class="nav-link {{ 'on' if request.endpoint=='perfil' }}">Perfil</a>
+
+            <div class="nav-sep"></div>
+
+            <!-- 🔔 CAMPANA DE NOTIFICACIONES -->
+            <div class="notif-wrap" id="notifWrap">
+                <button class="notif-bell" onclick="toggleNotif()" aria-label="Ver alertas activas" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                    <span class="notif-dot hidden" id="notifDot"></span>
+                    <span class="notif-badge hidden" id="notifBadge">0</span>
+                </button>
+                <div class="notif-panel" id="notifPanel" role="region" aria-label="Alertas activas">
+                    <div class="notif-head">
+                        <h4>Alertas</h4>
+                        <span id="notifHeadCount" class="notif-head-n">0 activas</span>
+                    </div>
+                    <div id="notifList" role="list">
+                        <div class="notif-empty">Sin alertas activas</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-user">
+                <span>{{ session.get('nombre','') }}</span>
+                <span class="nav-badge badge-{{ session.get('rol','ciudadano') }}">
+                    {{ 'Admin' if session.get('rol')=='backoffice' else 'Ciudadano' }}
+                </span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="nav-link nav-out">Salir</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Toast container -->
+<div id="toastContainer" class="toast-container" aria-live="assertive"></div>
+{% endif %}
+
+<!-- ══ MAIN ═══════════════════════════════════════════════════════════ -->
+<main class="main" role="main">
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+    <div class="flashes" role="alert">
+        {% for cat, msg in msgs %}
+        <div class="fl-msg fl-{{ cat }}" onclick="this.remove()" tabindex="0">
+            <span class="fl-ico" aria-hidden="true">{% if cat=='success' %}✓{% elif cat=='danger' %}✕{% elif cat=='warning' %}⚠{% else %}ℹ{% endif %}</span>
+            {{ msg }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Banners de alerta inyectados en tiempo real -->
+    <div id="alertBanners" aria-live="polite">
+        {% for a in alertas_activas %}
+        <div class="alert-banner ab-{{ a.nivel }}" role="alert" data-id="{{ a.id }}">
+            <span class="ab-icon" aria-hidden="true">{% if a.nivel=='roja' %}🔴{% elif a.nivel=='naranja' %}🟠{% else %}🟡{% endif %}</span>
+            <div>
+                <h3>{{ a.titulo }}</h3>
+                <p>{{ a.descripcion }}</p>
+                <span class="ab-meta">{{ a.zona }} · {{ a.created_at|dt }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% block content %}{% endblock %}
+</main>
+
+{% if session.get('uid') %}
+<footer class="foot" role="contentinfo">
+    <p>ClimAlert Valencia — Hackatón Campus Sostenible UPM 2026</p>
+    <p class="foot-em">Emergencias: <a href="tel:112" style="color:var(--red)"><strong>112</strong></a> · Bomberos Valencia: <a href="tel:085" style="color:var(--orange)"><strong>085</strong></a></p>
+</footer>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

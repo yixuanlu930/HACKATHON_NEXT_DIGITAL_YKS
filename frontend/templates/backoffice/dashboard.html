@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Backoffice — ClimAlert{% endblock %}
+{% block content %}
+<div class="page-h page-h-row">
+    <div>
+        <h1>Panel de Control</h1>
+        <p class="sub">Gestión de alertas y emergencias climáticas</p>
+    </div>
+    <button class="btn btn-d" onclick="document.getElementById('modalAlerta').classList.add('open')">🚨 Emitir Alerta</button>
+</div>
+
+<!-- Stats -->
+<div class="g g3 mb3">
+    <div class="card"><div class="stat-v t-b">{{ n_ciudadanos }}</div><div class="stat-l">Ciudadanos registrados</div></div>
+    <div class="card"><div class="stat-v t-r">{{ n_activas }}</div><div class="stat-l">Alertas activas</div></div>
+    <div class="card"><div class="stat-v t-a">{{ alertas|length }}</div><div class="stat-l">Alertas totales</div></div>
+</div>
+
+<!-- Análisis IA -->
+<div class="card mb3">
+    <div class="card-h">
+        <div class="card-ico ico-a">🤖</div>
+        <div class="card-t">Análisis IA del Clima<small>Recomienda si emitir alerta basándose en datos meteorológicos</small></div>
+    </div>
+    <div class="btns mb2">
+        <button class="btn btn-p" onclick="analizar(false)">🌤 Analizar Normal</button>
+        <button class="btn btn-d" onclick="analizar(true)">⛈ Analizar Desastre</button>
+    </div>
+    <div id="anaBox" class="reco hidden">
+        <div id="anaLoad" class="reco-load hidden"><div class="spinner"></div><span>Analizando datos meteorológicos…</span></div>
+        <div class="reco-text" id="anaTxt"></div>
+    </div>
+</div>
+
+<!-- Tabla de alertas -->
+<div class="card">
+    <div class="card-h">
+        <div class="card-ico ico-r">📢</div>
+        <div class="card-t">Alertas Emitidas</div>
+    </div>
+    {% if alertas %}
+    <div style="overflow-x:auto">
+        <table class="tbl">
+            <thead><tr><th>Nivel</th><th>Título</th><th>Zona</th><th>Fecha</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+            {% for a in alertas %}
+            <tr>
+                <td><span class="nv nv-{{ 'r' if a.nivel=='roja' else ('o' if a.nivel=='naranja' else 'y') }}">{{ a.nivel|upper }}</span></td>
+                <td>{{ a.titulo }}</td>
+                <td>{{ a.zona }}</td>
+                <td class="tmo ts">{{ a.created_at|dt }}</td>
+                <td>{% if a.activa %}<span class="nv nv-r">Activa</span>{% else %}<span class="nv nv-g">Fin</span>{% endif %}</td>
+                <td>
+                    {% if a.activa %}
+                    <form method="POST" action="{{ url_for('bo_desactivar_alerta', aid=a.id) }}" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-s" onclick="return confirm('¿Desactivar esta alerta?')">Desactivar</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty"><div class="empty-ico">📢</div><p>No hay alertas emitidas.</p></div>
+    {% endif %}
+</div>
+
+<!-- Modal crear alerta -->
+<div class="overlay" id="modalAlerta">
+    <div class="modal">
+        <div class="modal-h">
+            <h2>🚨 Emitir Nueva Alerta</h2>
+            <button class="modal-x" onclick="document.getElementById('modalAlerta').classList.remove('open')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('bo_crear_alerta') }}">
+            <div class="fg">
+                <label class="fl">Nivel</label>
+                <select name="nivel" class="fs" required>
+                    <option value="amarilla">🟡 Amarilla — Precaución</option>
+                    <option value="naranja">🟠 Naranja — Riesgo importante</option>
+                    <option value="roja">🔴 Roja — Riesgo extremo</option>
+                </select>
+            </div>
+            <div class="fg"><label class="fl">Título</label><input type="text" name="titulo" class="fi" placeholder="Alerta por lluvias torrenciales" required></div>
+            <div class="fg"><label class="fl">Descripción</label><textarea name="descripcion" class="ft" rows="4" placeholder="Descripción y precauciones…" required></textarea></div>
+            <div class="fg"><label class="fl">Zona afectada</label><input type="text" name="zona" class="fi" value="Valencia" placeholder="Valencia, L'Horta Sud…"></div>
+            <div class="btns">
+                <button type="submit" class="btn btn-d">Emitir alerta a todos</button>
+                <button type="button" class="btn btn-s" onclick="document.getElementById('modalAlerta').classList.remove('open')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function analizar(disaster) {
+    const box = document.getElementById('anaBox');
+    const load = document.getElementById('anaLoad');
+    const txt = document.getElementById('anaTxt');
+    box.classList.remove('hidden'); load.classList.remove('hidden'); txt.innerHTML = '';
+    const fd = new FormData(); fd.append('disaster', disaster);
+    try {
+        const r = await fetch('{{ url_for("bo_analizar") }}', {method:'POST', body:fd});
+        const d = await r.json();
+        txt.innerHTML = renderLLM(d.analisis);
+    } catch(e) { txt.textContent = 'Error de conexión.'; }
+    finally { load.classList.add('hidden'); }
+}
+</script>
+{% endblock %}

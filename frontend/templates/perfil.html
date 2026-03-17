@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil — ClimAlert{% endblock %}
+{% block content %}
+<div class="page-h">
+    <h1>👤 Mi Perfil</h1>
+    <p class="sub">Mantén tus datos actualizados para recomendaciones más precisas</p>
+</div>
+
+<div class="g g2">
+    <div class="card">
+        <div class="card-h"><div class="card-ico ico-a">📝</div><div class="card-t">Datos Personales y de Vivienda</div></div>
+        <form method="POST">
+            <div class="fg"><label class="fl">Nombre completo</label><input type="text" name="nombre" class="fi" value="{{ user.nombre }}" required></div>
+            <div class="fg"><label class="fl">Email</label><input type="email" class="fi" value="{{ user.email }}" disabled></div>
+            <div class="fr">
+                <div class="fg">
+                    <label class="fl">Provincia</label>
+                    <select class="fs" disabled>
+                        <option {{ 'selected' if user.provincia=='Valencia' }}>Valencia</option>
+                        <option {{ 'selected' if user.provincia=='Alicante' }}>Alicante</option>
+                        <option {{ 'selected' if user.provincia=='Castellón' }}>Castellón</option>
+                    </select>
+                </div>
+                <div class="fg"><label class="fl">Municipio</label><input type="text" name="municipio" class="fi" value="{{ user.municipio }}"></div>
+            </div>
+            <div class="fr">
+                <div class="fg">
+                    <label class="fl">Tipo de vivienda</label>
+                    <select name="tipo_vivienda" class="fs" id="vivSel" onchange="document.getElementById('pisoRow').style.display=this.value==='piso_alto'?'':'none'">
+                        <option value="sotano" {{ 'selected' if user.tipo_vivienda=='sotano' }}>Sótano / Semisótano</option>
+                        <option value="planta_baja" {{ 'selected' if user.tipo_vivienda=='planta_baja' }}>Planta baja</option>
+                        <option value="piso_alto" {{ 'selected' if user.tipo_vivienda=='piso_alto' }}>Piso alto</option>
+                        <option value="casa_campo" {{ 'selected' if user.tipo_vivienda=='casa_campo' }}>Casa de campo</option>
+                    </select>
+                </div>
+                <div class="fg" id="pisoRow" style="{{ '' if user.tipo_vivienda=='piso_alto' else 'display:none' }}">
+                    <label class="fl">Nº de planta</label>
+                    <input type="number" name="piso_numero" class="fi" value="{{ user.piso_numero }}" min="1" max="30">
+                </div>
+            </div>
+            <div class="fr">
+                <div class="fg"><label class="fl">Personas en el hogar</label><input type="number" name="num_personas" class="fi" value="{{ user.num_personas }}" min="1" max="20"></div>
+                <div class="fg">
+                    <label class="fl">¿Vehículo?</label>
+                    <select name="tiene_vehiculo" class="fs">
+                        <option value="no" {{ '' if user.tiene_vehiculo else 'selected' }}>No</option>
+                        <option value="si" {{ 'selected' if user.tiene_vehiculo else '' }}>Sí</option>
+                    </select>
+                </div>
+            </div>
+            <div class="fg">
+                <label class="fl">Necesidades especiales</label>
+                {% set necs = (user.necesidades or '').split(',') %}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem">
+                    <label class="fc"><input type="checkbox" name="necesidades" value="silla_ruedas" {{ 'checked' if 'silla_ruedas' in necs }}><span class="fc-l">Silla de ruedas</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="movilidad_reducida" {{ 'checked' if 'movilidad_reducida' in necs }}><span class="fc-l">Movilidad reducida</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="persona_dependiente" {{ 'checked' if 'persona_dependiente' in necs }}><span class="fc-l">Persona dependiente</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="persona_mayor" {{ 'checked' if 'persona_mayor' in necs }}><span class="fc-l">Persona mayor</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="ninos" {{ 'checked' if 'ninos' in necs }}><span class="fc-l">Niños pequeños</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="mascotas" {{ 'checked' if 'mascotas' in necs }}><span class="fc-l">Mascotas</span></label>
+                </div>
+            </div>
+            <div class="fg"><label class="fl">Teléfono de emergencia</label><input type="tel" name="telefono_emergencia" class="fi" value="{{ user.telefono_emergencia }}"></div>
+            <button type="submit" class="btn btn-p btn-bl">Guardar cambios</button>
+        </form>
+    </div>
+
+    <div>
+        <div class="card mb2">
+            <div class="card-h"><div class="card-ico ico-b">🛡️</div><div class="card-t">Tu Perfil de Seguridad</div></div>
+            <p class="ts" style="line-height:1.8;color:var(--muted)">{{ perfil_txt }}</p>
+            <p class="ts tm mt2">Este es el texto que el asistente de IA usa para personalizar tus recomendaciones.</p>
+        </div>
+        <div class="card">
+            <div class="card-h"><div class="card-ico ico-g">ℹ️</div><div class="card-t">¿Por qué estos datos?</div></div>
+            <p class="ts tm" style="line-height:1.7">
+                Tus datos permiten dar instrucciones <strong style="color:var(--text)">específicas para tu situación</strong>.
+                No es lo mismo una alerta para alguien en un 5º piso que para alguien en un sótano.
+                Si hay personas mayores o con movilidad reducida, las instrucciones de evacuación cambian por completo.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

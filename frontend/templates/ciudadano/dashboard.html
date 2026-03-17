@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Panel — ClimAlert Valencia{% endblock %}
+{% block content %}
+<div class="page-h">
+    <h1>Hola, {{ user.nombre }} 👋</h1>
+    <p class="sub">Tu panel de emergencias climáticas · {{ user.municipio or user.provincia }}</p>
+</div>
+
+<div class="g g2 mb3">
+    <!-- Asistente IA -->
+    <div class="card">
+        <div class="card-h">
+            <div class="card-ico ico-a">🤖</div>
+            <div class="card-t">Asistente de Emergencias<small>Pregunta lo que necesites sobre tu seguridad</small></div>
+        </div>
+        <div class="fg">
+            <textarea id="pregunta" class="ft" rows="3" placeholder="Ej: ¿Qué debo hacer si llueve más de 50 mm/h y vivo en planta baja?"></textarea>
+        </div>
+        <button class="btn btn-p btn-bl" onclick="consultaLibre()" id="btnConsulta">Consultar al asistente</button>
+        <div id="respBox" class="reco mt2 hidden">
+            <div class="reco-text" id="respTexto"></div>
+        </div>
+    </div>
+
+    <!-- Recomendación personalizada -->
+    <div class="card">
+        <div class="card-h">
+            <div class="card-ico ico-b">🛡️</div>
+            <div class="card-t">Recomendación Personalizada<small>Basada en tu perfil y el clima actual</small></div>
+        </div>
+        <p class="ts tm mb2">
+            Perfil: <strong style="color:var(--text)">{{ user.tipo_vivienda|replace('_',' ')|title or 'Sin especificar' }}</strong>
+            en <strong style="color:var(--text)">{{ user.municipio or user.provincia }}</strong>
+            {% if user.necesidades %} · {{ user.necesidades|replace('_',' ')|replace(',',' · ') }}{% endif %}
+        </p>
+        <div class="btns">
+            <button class="btn btn-p" onclick="getRec(false)">🌤 Clima Normal</button>
+            <button class="btn btn-d" onclick="getRec(true)">⛈ Modo Desastre</button>
+        </div>
+        <div id="recBox" class="reco mt2 hidden">
+            <div id="recLoad" class="reco-load hidden"><div class="spinner"></div><span>Analizando tu situación…</span></div>
+            <div class="reco-text" id="recTexto"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="g g3">
+    <a href="{{ url_for('citizen_weather') }}" class="card" style="text-decoration:none;color:inherit">
+        <div class="card-ico ico-b mb1">🌦️</div>
+        <div class="card-t">Ver Meteorología</div>
+        <p class="ts tm mt1">Datos en tiempo real de Valencia</p>
+    </a>
+    <a href="{{ url_for('citizen_historial') }}" class="card" style="text-decoration:none;color:inherit">
+        <div class="card-ico ico-g mb1">📋</div>
+        <div class="card-t">Historial</div>
+        <p class="ts tm mt1">Consultas y alertas anteriores</p>
+    </a>
+    <a href="{{ url_for('perfil') }}" class="card" style="text-decoration:none;color:inherit">
+        <div class="card-ico ico-a mb1">👤</div>
+        <div class="card-t">Mi Perfil</div>
+        <p class="ts tm mt1">Actualiza tus datos de seguridad</p>
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function getRec(disaster) {
+    const box = document.getElementById('recBox');
+    const load = document.getElementById('recLoad');
+    const txt = document.getElementById('recTexto');
+    box.classList.remove('hidden'); load.classList.remove('hidden'); txt.innerHTML = '';
+    const fd = new FormData(); fd.append('disaster', disaster);
+    try {
+        const r = await fetch('{{ url_for("citizen_recomendacion") }}', {method:'POST', body:fd});
+        const d = await r.json();
+        txt.innerHTML = renderLLM(d.respuesta);
+    } catch(e) { txt.textContent = 'Error de conexión. Inténtalo de nuevo.'; }
+    finally { load.classList.add('hidden'); }
+}
+
+async function consultaLibre() {
+    const q = document.getElementById('pregunta').value.trim();
+    if (!q) return;
+    const box = document.getElementById('respBox');
+    const txt = document.getElementById('respTexto');
+    box.classList.remove('hidden');
+    txt.innerHTML = '<div class="reco-load"><div class="spinner"></div><span>Consultando…</span></div>';
+    const fd = new FormData(); fd.append('pregunta', q);
+    try {
+        const r = await fetch('{{ url_for("citizen_consulta") }}', {method:'POST', body:fd});
+        const d = await r.json();
+        txt.innerHTML = renderLLM(d.respuesta || d.error);
+    } catch(e) { txt.textContent = 'Error de conexión.'; }
+}
+</script>
+{% endblock %}

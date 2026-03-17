@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Registro — ClimAlert{% endblock %}
+{% block body_class %}auth-pg{% endblock %}
+{% block content %}
+<div class="auth-box" style="max-width:540px">
+    <div class="auth-head">
+        <span class="auth-ico">⚡</span>
+        <h1>Crear Cuenta</h1>
+        <p>Protege a tu hogar ante emergencias climáticas</p>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}
+    {% for cat, msg in messages %}
+    <div class="fl-msg fl-{{ cat }}" onclick="this.remove()" style="margin-bottom:.85rem">
+        <span class="fl-ico">{% if cat=='danger' %}✕{% else %}ℹ{% endif %}</span>{{ msg }}
+    </div>
+    {% endfor %}{% endif %}{% endwith %}
+    <div class="auth-card">
+        <form method="POST">
+            <div class="fg">
+                <label class="fl">Tipo de cuenta</label>
+                <select name="rol" class="fs" id="rolSel" onchange="document.getElementById('adminCode').classList.toggle('hidden',this.value!=='backoffice')">
+                    <option value="ciudadano">Ciudadano</option>
+                    <option value="backoffice">Administrador (Backoffice)</option>
+                </select>
+            </div>
+            <div class="fg hidden" id="adminCode">
+                <label class="fl">Código de administrador</label>
+                <input type="text" name="codigo_admin" class="fi" placeholder="Código proporcionado">
+            </div>
+            <hr class="sep">
+            <div class="fr">
+                <div class="fg"><label class="fl">Nombre completo *</label><input type="text" name="nombre" class="fi" required></div>
+                <div class="fg"><label class="fl">Email *</label><input type="email" name="email" class="fi" required></div>
+            </div>
+            <div class="fg"><label class="fl">Contraseña *</label><input type="password" name="password" class="fi" required minlength="6" placeholder="Mínimo 6 caracteres"></div>
+            <hr class="sep">
+            <div class="fr">
+                <div class="fg">
+                    <label class="fl">Provincia *</label>
+                    <select name="provincia" class="fs"><option value="Valencia" selected>Valencia</option><option value="Alicante">Alicante</option><option value="Castellón">Castellón</option></select>
+                </div>
+                <div class="fg"><label class="fl">Municipio</label><input type="text" name="municipio" class="fi" placeholder="Ej: Paiporta, Alfafar…"></div>
+            </div>
+            <div class="fr">
+                <div class="fg">
+                    <label class="fl">Tipo de vivienda *</label>
+                    <select name="tipo_vivienda" class="fs" id="vivSel" required onchange="document.getElementById('pisoRow').classList.toggle('hidden',this.value!=='piso_alto')">
+                        <option value="">Seleccionar…</option>
+                        <option value="sotano">Sótano / Semisótano</option>
+                        <option value="planta_baja">Planta baja</option>
+                        <option value="piso_alto">Piso alto</option>
+                        <option value="casa_campo">Casa de campo</option>
+                    </select>
+                </div>
+                <div class="fg hidden" id="pisoRow"><label class="fl">Nº de planta</label><input type="number" name="piso_numero" class="fi" min="1" max="30" placeholder="Ej: 3"></div>
+            </div>
+            <div class="fr">
+                <div class="fg"><label class="fl">Personas en el hogar</label><input type="number" name="num_personas" class="fi" min="1" max="20" value="1"></div>
+                <div class="fg">
+                    <label class="fl">¿Dispone de vehículo?</label>
+                    <select name="tiene_vehiculo" class="fs"><option value="no">No</option><option value="si">Sí</option></select>
+                </div>
+            </div>
+            <div class="fg">
+                <label class="fl">Necesidades especiales del hogar</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem">
+                    <label class="fc"><input type="checkbox" name="necesidades" value="silla_ruedas"><span class="fc-l">Silla de ruedas</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="movilidad_reducida"><span class="fc-l">Movilidad reducida</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="persona_dependiente"><span class="fc-l">Persona dependiente</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="persona_mayor"><span class="fc-l">Persona mayor</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="ninos"><span class="fc-l">Niños pequeños</span></label>
+                    <label class="fc"><input type="checkbox" name="necesidades" value="mascotas"><span class="fc-l">Mascotas</span></label>
+                </div>
+            </div>
+            <div class="fg"><label class="fl">Teléfono de contacto de emergencia</label><input type="tel" name="telefono_emergencia" class="fi" placeholder="612 345 678"><p class="fh">Un familiar o persona de confianza.</p></div>
+            <button type="submit" class="btn btn-p btn-lg btn-bl mt2">Crear mi cuenta</button>
+        </form>
+    </div>
+    <div class="auth-foot">¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a></div>
+</div>
+{% endblock %}

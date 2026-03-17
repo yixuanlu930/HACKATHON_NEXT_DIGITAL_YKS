@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Historial Global — ClimAlert{% endblock %}
+{% block content %}
+<div class="page-h">
+    <h1>📋 Historial Global</h1>
+    <p class="sub">Todas las consultas del sistema</p>
+</div>
+
+<div class="tabs">
+    <button class="tab on" onclick="switchTab('llm')">Consultas IA ({{ llm|length }})</button>
+    <button class="tab" onclick="switchTab('meteo')">Meteorología ({{ meteo|length }})</button>
+</div>
+
+<div id="tab-llm" class="tab-c on">
+    {% if llm %}
+    {% for i in llm %}
+    <div class="card mb2">
+        <div style="display:flex;justify-content:space-between;align-items:center" class="mb1">
+            <span class="ts tm tmo">{{ i.created_at|dt }}</span>
+            <span class="ts tm">{{ i.user_nombre or 'Sistema' }}</span>
+        </div>
+        <div class="mb1">
+            <strong class="ts" style="color:var(--blue)">Prompt:</strong>
+            <p class="ts">{{ i.user_p[:300] }}{% if i.user_p|length > 300 %}…{% endif %}</p>
+        </div>
+        <div>
+            <strong class="ts" style="color:var(--accent)">Respuesta:</strong>
+            <p class="ts" style="white-space:pre-wrap">{{ i.respuesta[:600] }}{% if i.respuesta|length > 600 %}…{% endif %}</p>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty"><div class="empty-ico">💬</div><p>Sin consultas registradas.</p></div>
+    {% endif %}
+</div>
+
+<div id="tab-meteo" class="tab-c">
+    {% if meteo %}
+    {% for i in meteo %}
+    <div class="card mb2">
+        <div style="display:flex;justify-content:space-between;align-items:center" class="mb1">
+            <span class="ts tm tmo">{{ i.created_at|dt }}</span>
+            <span class="ts tm">{{ i.user_nombre or '—' }}</span>
+        </div>
+        <div class="json" style="max-height:150px;font-size:.72rem">{{ i.datos|json_pretty }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty"><div class="empty-ico">🌦️</div><p>Sin registros.</p></div>
+    {% endif %}
+</div>
+{% endblock %}

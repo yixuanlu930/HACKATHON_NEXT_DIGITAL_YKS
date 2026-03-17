@@ -3,14 +3,24 @@
 {% block body_class %}auth-pg{% endblock %}
 {% block content %}
 <div class="auth-box">
-    <div class="auth-head"><span style="font-size:2.5rem">⚡</span><h1>ClimAlert <span style="color:var(--accent)">Valencia</span></h1><p>Gestión de Emergencias Climáticas</p></div>
+    <div class="auth-head">
+        <span style="font-size:3.5rem;display:block;margin-bottom:.6rem">⚡</span>
+        <h1>ClimAlert <span style="color:var(--accent)">Valencia</span></h1>
+        <p>Gestión de Emergencias Climáticas</p>
+    </div>
     <div class="auth-card">
         <form method="POST">
-            <div class="fg"><label class="fl">Email</label><input type="email" name="email" class="fi" required autofocus></div>
-            <div class="fg"><label class="fl">Contraseña</label><input type="password" name="password" class="fi" required></div>
-            <button type="submit" class="btn btn-p btn-bl mt2">Iniciar Sesión</button>
+            <div class="fg">
+                <label class="fl">Email</label>
+                <input type="email" name="email" class="fi" placeholder="tu@email.com" required autofocus>
+            </div>
+            <div class="fg">
+                <label class="fl">Contraseña</label>
+                <input type="password" name="password" class="fi" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-p btn-bl btn-login mt2">Iniciar Sesión</button>
         </form>
     </div>
-    <p class="auth-foot">¿No tienes cuenta? <a href="{{ url_for('registro') }}">Regístrate</a></p>
+    <p class="auth-foot">¿No tienes cuenta? <a href="{{ url_for('registro') }}">Regístrate aquí</a></p>
 </div>
 {% endblock %}

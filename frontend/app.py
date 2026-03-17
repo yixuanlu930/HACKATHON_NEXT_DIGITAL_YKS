@@ -245,9 +245,16 @@ def citizen_weather():
 @app.route("/ciudadano/recomendaciones")
 @login_required
 def citizen_recommendations():
-    data, code = api("GET", "/api/citizen/recommendations")
-    error = data.get("error") if code != 200 else None
-    return render_template("ciudadano/recomendaciones.html", data=data, error=error)
+    data_recomendations, code_recomendations = api("GET", "/api/citizen/recommendations")
+    data_clima, code_clima = api("GET", "/api/citizen/weather")
+
+    error_recomendations = data_recomendations.get("error") if code_recomendations != 200 else None
+    error_clima = data_clima.get("error") if code_clima != 200 else None
+
+    error = error_recomendations or error_clima
+    data_recomendations = data_recomendations if code_recomendations == 200 else None
+    data_clima = data_clima if code_clima == 200 else None
+    return render_template("ciudadano/recomendaciones.html", data=data_recomendations, error=error)
 
 
 @app.route("/ciudadano/historial")

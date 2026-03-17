@@ -20,7 +20,6 @@
             <a href="{{ url_for('bo_historial') }}" class="nav-a {{ 'on' if request.endpoint=='bo_historial' }}">Historial</a>
             {% else %}
             <a href="{{ url_for('citizen_dashboard') }}" class="nav-a {{ 'on' if request.endpoint=='citizen_dashboard' }}">Inicio</a>
-            <a href="{{ url_for('citizen_weather') }}" class="nav-a {{ 'on' if request.endpoint=='citizen_weather' }}">Clima</a>
             <a href="{{ url_for('citizen_recommendations') }}" class="nav-a {{ 'on' if request.endpoint=='citizen_recommendations' }}">Recomendaciones</a>
             <a href="{{ url_for('citizen_historial') }}" class="nav-a {{ 'on' if request.endpoint=='citizen_historial' }}">Historial</a>
             {% endif %}

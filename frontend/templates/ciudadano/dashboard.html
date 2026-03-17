@@ -7,14 +7,14 @@
 </div>
 
 <div class="g g3 mb3">
-    <a href="{{ url_for('citizen_weather') }}" class="card link-card">
-        <div class="card-ico ico-b">🌦️</div><h3>Ver Clima</h3><p class="ts tm">Datos meteorológicos en tiempo real</p>
-    </a>
     <a href="{{ url_for('citizen_recommendations') }}" class="card link-card">
         <div class="card-ico ico-a">🤖</div><h3>Recomendaciones IA</h3><p class="ts tm">Instrucciones personalizadas</p>
     </a>
     <a href="{{ url_for('perfil') }}" class="card link-card">
         <div class="card-ico ico-g">👤</div><h3>Mi Perfil</h3><p class="ts tm">Actualiza tus datos</p>
+    </a>
+        <a href="{{ url_for('citizen_historial') }}" class="card link-card">
+        <div class="card-ico ico-b">📜</div><h3>Historial</h3><p class="ts tm">Historial del ciudadano</p>
     </a>
 </div>
 

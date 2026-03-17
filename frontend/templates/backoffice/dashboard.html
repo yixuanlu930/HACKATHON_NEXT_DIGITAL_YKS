@@ -8,9 +8,60 @@
 </div>
 
 <div class="g g3 mb3">
-    <div class="card"><div class="stat-v t-b">{{ n_ciudadanos }}</div><div class="stat-l">Ciudadanos</div></div>
-    <div class="card"><div class="stat-v t-r">{{ n_activas }}</div><div class="stat-l">Alertas activas</div></div>
+    <div class="card" style="cursor:pointer" onclick="document.getElementById('secUsers').classList.toggle('hidden')">
+        <div class="stat-v t-b">{{ n_ciudadanos }}</div><div class="stat-l">Ciudadanos ▼</div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="document.getElementById('secActivas').classList.toggle('hidden')">
+        <div class="stat-v t-r">{{ n_activas }}</div><div class="stat-l">Alertas activas ▼</div>
+    </div>
     <div class="card"><div class="stat-v t-a">{{ alertas|length }}</div><div class="stat-l">Alertas totales</div></div>
+</div>
+
+<!-- Lista de ciudadanos -->
+<div id="secUsers" class="card mb2 hidden">
+    <h3 class="mb2">👥 Ciudadanos registrados</h3>
+    {% if users %}
+    <div style="overflow-x:auto">
+        <table class="tbl">
+            <thead><tr><th>Nombre</th><th>Email</th><th>Provincia</th><th>Vivienda</th><th>Necesidades</th></tr></thead>
+            <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.nombre }}</td>
+                <td>{{ u.email }}</td>
+                <td>{{ u.provincia }}</td>
+                <td>{{ u.tipo_vivienda }}</td>
+                <td>{{ u.necesidades_especiales or '—' }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}<div class="empty"><p>No hay ciudadanos registrados.</p></div>{% endif %}
+</div>
+
+<!-- Lista de alertas activas -->
+<div id="secActivas" class="card mb2 hidden">
+    <h3 class="mb2">🔴 Alertas activas</h3>
+    {% set activas = alertas|selectattr('activa')|list %}
+    {% if activas %}
+    <div style="overflow-x:auto">
+        <table class="tbl">
+            <thead><tr><th>Nivel</th><th>Título</th><th>Mensaje</th><th>Provincia</th><th>Fecha</th></tr></thead>
+            <tbody>
+            {% for a in activas %}
+            <tr>
+                <td><span class="nv nv-{{ a.nivel[0] }}">{{ a.nivel|upper }}</span></td>
+                <td>{{ a.titulo }}</td>
+                <td class="ts">{{ a.mensaje[:80] }}{% if a.mensaje|length > 80 %}…{% endif %}</td>
+                <td>{{ a.provincia or 'Todas' }}</td>
+                <td class="ts tmo">{{ a.creado_en[:16] }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}<div class="empty"><p>No hay alertas activas.</p></div>{% endif %}
 </div>
 
 <div class="card">

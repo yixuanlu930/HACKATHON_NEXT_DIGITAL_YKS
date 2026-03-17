@@ -16,6 +16,7 @@ citizen_bp = Blueprint("citizen", __name__)
 def get_my_weather():
     """Obtiene el tiempo actual para la provincia del ciudadano."""
     identity = get_jwt_identity()
+    identity = json.loads(identity)
     user = User.query.get(identity["id"])
 
     weather = get_weather()
@@ -37,6 +38,7 @@ def get_my_weather():
 def get_recommendations():
     """Obtiene recomendaciones personalizadas del LLM según tiempo + perfil."""
     identity = get_jwt_identity()
+    identity = json.loads(identity)
     user = User.query.get(identity["id"])
 
     weather = get_weather()
@@ -70,6 +72,7 @@ def get_recommendations():
 def get_my_alerts():
     """Devuelve alertas activas para la provincia del ciudadano."""
     identity = get_jwt_identity()
+    identity = json.loads(identity)
     user = User.query.get(identity["id"])
 
     alerts = Alert.query.filter(
@@ -85,6 +88,7 @@ def get_my_alerts():
 def weather_history():
     """Historial de consultas meteorológicas del ciudadano."""
     identity = get_jwt_identity()
+    identity = json.loads(identity)
     logs = WeatherLog.query.filter_by(user_id=identity["id"]).order_by(WeatherLog.consultado_en.desc()).limit(20).all()
     return jsonify([l.to_dict() for l in logs]), 200
 
@@ -94,5 +98,6 @@ def weather_history():
 def llm_history():
     """Historial de consultas al LLM del ciudadano."""
     identity = get_jwt_identity()
+    identity = json.loads(identity)
     logs = LLMLog.query.filter_by(user_id=identity["id"]).order_by(LLMLog.consultado_en.desc()).limit(20).all()
     return jsonify([l.to_dict() for l in logs]), 200

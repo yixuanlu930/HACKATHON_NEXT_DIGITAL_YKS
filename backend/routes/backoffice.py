@@ -6,6 +6,7 @@ from extensions import db
 from models.user import User
 from models.alert import Alert, WeatherLog, LLMLog
 from services.weather_service import get_weather
+import json
 
 backoffice_bp = Blueprint("backoffice", __name__)
 
@@ -16,6 +17,7 @@ def admin_required(fn):
     @jwt_required()
     def wrapper(*args, **kwargs):
         identity = get_jwt_identity()
+        identity = json.loads(identity)
         if identity.get("rol") != "admin":
             return jsonify({"error": "Acceso restringido a administradores"}), 403
         return fn(*args, **kwargs)
@@ -43,6 +45,7 @@ def list_alerts():
 def create_alert():
     """Crea y emite una alerta a todos los ciudadanos (o de una provincia)."""
     identity = get_jwt_identity()
+    identity = json.loads(identity)
     data = request.get_json()
 
     required = ["titulo", "mensaje", "nivel"]

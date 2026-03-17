@@ -30,13 +30,17 @@ def api(method, path, json=None, token=None):
     if tk:
         headers["Authorization"] = f"Bearer {tk}"
     try:
-        r = http.request(method, url, json=json, headers=headers, timeout=15)
+        r = http.request(method, url, json=json, headers=headers, timeout=30)
+        print(f"[API] {method} {path} → {r.status_code}: {r.text[:200]}")
         if r.status_code == 401 and tk:
             session.clear()
-        return r.json(), r.status_code
-    except http.exceptions.JSONDecodeError:
-        return {"error": "Respuesta no válida del backend"}, 502
+        data = r.json()
+        # Flask-JWT-Extended usa "msg" en vez de "error"
+        if "msg" in data and "error" not in data:
+            data["error"] = data["msg"]
+        return data, r.status_code
     except Exception as e:
+        print(f"[API ERROR] {method} {path} → {e}")
         return {"error": str(e)}, 500
 
 

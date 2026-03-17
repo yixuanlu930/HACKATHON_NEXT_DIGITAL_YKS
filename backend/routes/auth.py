@@ -6,6 +6,7 @@ from flask_jwt_extended import (
 )
 from extensions import db
 from models.user import User
+import json
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -65,7 +66,7 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    token = create_access_token(identity={"id": user.id, "rol": user.rol})
+    token = create_access_token(identity=json.dumps({"id": user.id, "rol": user.rol}))
     return jsonify({"message": "Usuario registrado correctamente", "token": token, "user": user.to_dict()}), 201
 
 
@@ -81,14 +82,14 @@ def login():
     if not user or not user.check_password(data["password"]):
         return jsonify({"error": "Credenciales incorrectas"}), 401
 
-    token = create_access_token(identity={"id": user.id, "rol": user.rol})
+    token = create_access_token(identity=json.dumps({"id": user.id, "rol": user.rol}))
     return jsonify({"token": token, "user": user.to_dict()}), 200
 
 
 @auth_bp.route("/me", methods=["GET"])
 @jwt_required()
 def me():
-    identity = get_jwt_identity()
+    identity = json.loads(get_jwt_identity())
     user = User.query.get(identity["id"])
     if not user:
         return jsonify({"error": "Usuario no encontrado"}), 404
@@ -98,7 +99,7 @@ def me():
 @auth_bp.route("/me", methods=["PUT"])
 @jwt_required()
 def update_profile():
-    identity = get_jwt_identity()
+    identity = json.loads(get_jwt_identity())
     user = User.query.get(identity["id"])
     if not user:
         return jsonify({"error": "Usuario no encontrado"}), 404

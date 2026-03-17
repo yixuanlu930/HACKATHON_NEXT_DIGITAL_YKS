@@ -27,7 +27,20 @@ def admin_required(fn):
 @admin_required
 def get_weather_admin(provincia):
     """Obtiene el tiempo para cualquier provincia."""
+    identity = get_jwt_identity()
+    user = User.query.get(int(identity.split("|")[0]))
+
     weather = get_weather()
+
+    # Guardar en historial
+    log = WeatherLog(
+        user_id=user.id,
+        provincia=user.provincia,
+        datos=json.dumps(weather),
+    )
+    db.session.add(log)
+    db.session.commit()
+
     return jsonify(weather), 200
 
 
@@ -44,7 +57,6 @@ def list_alerts():
 def create_alert():
     """Crea y emite una alerta a todos los ciudadanos (o de una provincia)."""
     identity = get_jwt_identity()
-    identity = json.loads(identity)
     data = request.get_json()
 
     required = ["titulo", "mensaje", "nivel"]

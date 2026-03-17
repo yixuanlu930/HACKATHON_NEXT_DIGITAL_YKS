@@ -107,3 +107,34 @@ def all_llm_logs():
     """Historial de todas las consultas al LLM."""
     logs = LLMLog.query.order_by(LLMLog.consultado_en.desc()).limit(50).all()
     return jsonify([l.to_dict() for l in logs]), 200
+
+@backoffice_bp.route("/create-admin", methods=["POST"])
+@admin_required
+def create_admin():
+    """Crea un nuevo usuario administrador."""
+    data = request.get_json()
+
+    required = ["email", "password", "nombre"]
+    missing = [f for f in required if not data.get(f)]
+    if missing:
+        return jsonify({"error": f"Faltan campos: {', '.join(missing)}"}), 400
+
+    if User.query.filter_by(email=data["email"]).first():
+        return jsonify({"error": "Ya existe una cuenta con ese email"}), 409
+
+    admin = User(
+        email=data["email"],
+        nombre=data["nombre"],
+        provincia=data.get("provincia", "Valencia"),
+        tipo_vivienda=data.get("tipo_vivienda", "Piso alto"),
+        rol="admin",
+    )
+    admin.set_password(data["password"])
+
+    db.session.add(admin)
+    db.session.commit()
+
+    return jsonify({
+        "message": f"Admin '{admin.nombre}' creado correctamente",
+        "user": admin.to_dict(),
+    }), 201

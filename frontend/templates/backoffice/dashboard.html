@@ -4,6 +4,7 @@
 <div class="page-h" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
     <div><h1>Panel de Control</h1><p class="sub">Gestión de alertas climáticas</p></div>
     <button class="btn btn-d" onclick="document.getElementById('modal').classList.add('open')">🚨 Emitir Alerta</button>
+    <button class="btn btn-p" onclick="document.getElementById('modalAdmin').classList.add('open')">👤 Crear Admin</button>
 </div>
 
 <div class="g g3 mb3">
@@ -56,6 +57,25 @@
             <div class="btns">
                 <button type="submit" class="btn btn-d">Emitir alerta</button>
                 <button type="button" class="btn btn-s" onclick="document.getElementById('modal').classList.remove('open')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal Crear Admin -->
+<div class="overlay" id="modalAdmin">
+    <div class="modal">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <h2>👤 Nuevo Administrador</h2>
+            <button class="modal-x" onclick="document.getElementById('modalAdmin').classList.remove('open')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('bo_crear_admin') }}">
+            <div class="fg"><label class="fl">Nombre *</label><input name="nombre" class="fi" required></div>
+            <div class="fg"><label class="fl">Email *</label><input type="email" name="email" class="fi" required></div>
+            <div class="fg"><label class="fl">Contraseña *</label><input type="password" name="password" class="fi" required minlength="8"></div>
+            <div class="fg"><label class="fl">Provincia</label><input name="provincia" class="fi" value="Valencia"></div>
+            <div class="btns">
+                <button type="submit" class="btn btn-p">Crear administrador</button>
+                <button type="button" class="btn btn-s" onclick="document.getElementById('modalAdmin').classList.remove('open')">Cancelar</button>
             </div>
         </form>
     </div>

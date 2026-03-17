@@ -314,6 +314,22 @@ def bo_desactivar_alerta(aid):
         flash(data.get("error", "Error."), "danger")
     return redirect(url_for("bo_dashboard"))
 
+@app.route("/backoffice/crear-admin", methods=["POST"])
+@admin_required
+def bo_crear_admin():
+    f = request.form
+    body = {
+        "email": f.get("email", "").strip(),
+        "password": f.get("password", ""),
+        "nombre": f.get("nombre", "").strip(),
+        "provincia": f.get("provincia", "Valencia").strip(),
+    }
+    data, code = api("POST", "/api/backoffice/create-admin", json=body)
+    if code == 201:
+        flash(data.get("message", "Admin creado."), "success")
+    else:
+        flash(data.get("error", "Error al crear admin."), "danger")
+    return redirect(url_for("bo_dashboard"))
 
 @app.route("/backoffice/historial")
 @admin_required

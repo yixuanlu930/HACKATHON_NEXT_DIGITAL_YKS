@@ -42,7 +42,22 @@ def create_app():
     app.register_blueprint(backoffice_bp, url_prefix="/api/backoffice")
 
     with app.app_context():
+        from models.user import User
+        from models.alert import Alert, WeatherLog, LLMLog
         db.create_all()
+
+        if not User.query.filter_by(rol="admin").first():
+            admin = User(
+                email="admin@climalert.es",
+                nombre="Administrador",
+                provincia="Valencia",
+                tipo_vivienda="Piso alto",
+                rol="admin",
+            )
+            admin.set_password("Admin123!")
+            db.session.add(admin)
+            db.session.commit()
+            print("Admin creado: admin@climalert.es / Admin123!")
 
     return app
 

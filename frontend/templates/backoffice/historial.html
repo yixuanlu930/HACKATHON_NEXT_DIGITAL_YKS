@@ -12,11 +12,44 @@
 {% if weather_logs %}
     {% for l in weather_logs %}
     <div class="card mb2">
-        <div style="display:flex;justify-content:space-between" class="mb1">
-            <span class="ts tm">{{ l.consultado_en[:16] }}</span>
-            <span class="ts tm">{{ l.provincia }} · User #{{ l.user_id }}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center" class="mb1">
+            <span class="ts tm">📅 {{ l.consultado_en[:16] }}</span>
+            <span class="ts tm">📍 {{ l.provincia }} · User #{{ l.user_id }}</span>
         </div>
-        <pre class="json" style="max-height:120px">{{ l.datos | tojson(indent=2) if l.datos is mapping else l.datos }}</pre>
+        {% set w = l.datos %}
+        {% if w is mapping %}
+        {% if w.estacion %}
+        <p class="ts tm mb1">Estación: {{ w.estacion }}{% if w.fecha %} · {{ w.fecha }}{% endif %}</p>
+        {% endif %}
+        <div class="wg">
+            {% if w.temperatura_media is not none %}
+            <div class="wi"><div class="wi-l">Temp. media</div><div class="wi-v">{{ w.temperatura_media }}°C</div></div>
+            {% endif %}
+            {% if w.temperatura_maxima is not none %}
+            <div class="wi"><div class="wi-l">Máx / Mín</div><div class="wi-v">{{ w.temperatura_maxima }}°C / {{ w.temperatura_minima }}°C</div></div>
+            {% endif %}
+            {% if w.precipitacion_mm is not none %}
+            <div class="wi"><div class="wi-l">Precipitación</div><div class="wi-v">{{ w.precipitacion_mm }} mm</div></div>
+            {% endif %}
+            {% if w.humedad_media is not none %}
+            <div class="wi"><div class="wi-l">Humedad media</div><div class="wi-v">{{ w.humedad_media }}%</div></div>
+            {% endif %}
+            {% if w.velocidad_viento is not none %}
+            <div class="wi"><div class="wi-l">Viento</div><div class="wi-v">{{ w.velocidad_viento }} km/h</div></div>
+            {% endif %}
+            {% if w.racha_maxima is not none %}
+            <div class="wi"><div class="wi-l">Racha máx.</div><div class="wi-v">{{ w.racha_maxima }} km/h</div></div>
+            {% endif %}
+            {% if w.presion_maxima is not none %}
+            <div class="wi"><div class="wi-l">Presión</div><div class="wi-v">{{ w.presion_maxima }} / {{ w.presion_minima }} hPa</div></div>
+            {% endif %}
+            {% if w.horas_sol is not none %}
+            <div class="wi"><div class="wi-l">Horas de sol</div><div class="wi-v">{{ w.horas_sol }} h</div></div>
+            {% endif %}
+        </div>
+        {% else %}
+        <pre class="json" style="max-height:120px">{{ l.datos }}</pre>
+        {% endif %}
     </div>
     {% endfor %}
 {% else %}<div class="empty"><p>Sin registros.</p></div>{% endif %}

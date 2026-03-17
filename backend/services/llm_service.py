@@ -91,16 +91,14 @@ def build_user_prompt(user_data: dict, weather_data: dict) -> str:
     - Detalle mascotas: {user_data.get('detalle_mascotas') or 'N/A'}
     - Teléfono emergencia: {user_data.get('telefono_emergencia') or 'No proporcionado'}
 
-    El clima actual en su provincia es:
-    - Temperatura: {weather_data.get('temperatura', 'N/A')} °C
-    - Probabilidad de precipitación: {weather_data.get('probabilidad_precipitacion', 'N/A')} %
-    - Volumen de precipitación: {weather_data.get('volumen_precipitacion', 'N/A')} mm
-    - Velocidad del viento: {weather_data.get('velocidad_viento', 'N/A')} km/h
-    - Dirección del viento: {weather_data.get('direccion_viento', 'N/A')} °
-    - Índice UV: {weather_data.get('indice_uv', 'N/A')}
-    - Presión atmosférica: {weather_data.get('presion_atmosferica', 'N/A')} hPa
-    - Humedad relativa: {weather_data.get('humedad_relativa', 'N/A')} %
-    - Nivel de alerta: {weather_data.get('nivel_alerta', 'N/A')}
+    El clima actual (estación: {weather_data.get('estacion', 'N/A')}, {weather_data.get('fecha', 'N/A')}) es:
+    - Temperatura media: {weather_data.get('temperatura_media', 'N/A')} °C (mín {weather_data.get('temperatura_minima', 'N/A')} / máx {weather_data.get('temperatura_maxima', 'N/A')})
+    - Precipitación: {weather_data.get('precipitacion_mm', 0)} mm
+    - Humedad relativa media: {weather_data.get('humedad_media', 'N/A')}% (mín {weather_data.get('humedad_minima', 'N/A')} / máx {weather_data.get('humedad_maxima', 'N/A')})
+    - Velocidad del viento: {weather_data.get('velocidad_viento', 'No disponible')} km/h
+    - Racha máxima: {weather_data.get('racha_maxima', 'No disponible')} km/h
+    - Presión atmosférica: máx {weather_data.get('presion_maxima', 'No disponible')} / mín {weather_data.get('presion_minima', 'No disponible')} hPa
+
 
     ¿Qué debe hacer este ciudadano para protegerse? Da instrucciones concretas, numeradas y personalizadas según su perfil."""
 

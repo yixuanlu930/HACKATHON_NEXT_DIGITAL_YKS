@@ -14,41 +14,44 @@
 {% elif weather %}
 <div class="card mb2">
     <h3 class="mb2"> {{ provincia }}</h3>
+    {% if weather.estacion %}
+    <p class="ts tm mb2">Estación: {{ weather.estacion }} · {{ weather.fecha }}</p>
+    {% endif %}
     <div class="wg">
-        {% if weather.temperatura is defined %}
-        <div class="wi"><div class="wi-l">Temperatura</div><div class="wi-v">{{ weather.temperatura }}°C</div></div>
+        {% if weather.temperatura_media is not none %}
+        <div class="wi"><div class="wi-l">Temperatura media</div><div class="wi-v">{{ weather.temperatura_media }}°C</div></div>
         {% endif %}
 
-        {% if weather.humedad_relativa is defined %}
-        <div class="wi"><div class="wi-l">Humedad relativa</div><div class="wi-v">{{ weather.humedad_relativa }}%</div></div>
+        {% if weather.temperatura_maxima is not none %}
+        <div class="wi"><div class="wi-l">Máxima / Mínima</div><div class="wi-v">{{ weather.temperatura_maxima }}°C / {{ weather.temperatura_minima }}°C</div></div>
         {% endif %}
 
-        {% if weather.probabilidad_precipitacion is defined %}
-        <div class="wi"><div class="wi-l">Prob. precipitación</div><div class="wi-v">{{ weather.probabilidad_precipitacion }}%</div></div>
+        {% if weather.precipitacion_mm is not none %}
+        <div class="wi"><div class="wi-l">Precipitación</div><div class="wi-v">{{ weather.precipitacion_mm }} mm</div></div>
         {% endif %}
 
-        {% if weather.volumen_precipitacion is defined %}
-        <div class="wi"><div class="wi-l">Volumen lluvia</div><div class="wi-v">{{ weather.volumen_precipitacion }} mm</div></div>
+        {% if weather.humedad_media is not none %}
+        <div class="wi"><div class="wi-l">Humedad media</div><div class="wi-v">{{ weather.humedad_media }}%</div></div>
         {% endif %}
 
-        {% if weather.velocidad_viento is defined %}
+        {% if weather.humedad_maxima is not none %}
+        <div class="wi"><div class="wi-l">Humedad máx / mín</div><div class="wi-v">{{ weather.humedad_maxima }}% / {{ weather.humedad_minima }}%</div></div>
+        {% endif %}
+
+        {% if weather.velocidad_viento is not none %}
         <div class="wi"><div class="wi-l">Velocidad viento</div><div class="wi-v">{{ weather.velocidad_viento }} km/h</div></div>
         {% endif %}
 
-        {% if weather.direccion_viento is defined %}
-        <div class="wi"><div class="wi-l">Dirección viento</div><div class="wi-v">{{ weather.direccion_viento }}°</div></div>
+        {% if weather.racha_maxima is not none %}
+        <div class="wi"><div class="wi-l">Racha máxima</div><div class="wi-v">{{ weather.racha_maxima }} km/h</div></div>
         {% endif %}
 
-        {% if weather.presion_atmosferica is defined %}
-        <div class="wi"><div class="wi-l">Presión atmosférica</div><div class="wi-v">{{ weather.presion_atmosferica }} hPa</div></div>
+        {% if weather.presion_maxima is not none %}
+        <div class="wi"><div class="wi-l">Presión atmosférica</div><div class="wi-v">{{ weather.presion_maxima }} / {{ weather.presion_minima }} hPa</div></div>
         {% endif %}
 
-        {% if weather.indice_uv is defined %}
-        <div class="wi"><div class="wi-l">Índice UV</div><div class="wi-v">{{ weather.indice_uv }}</div></div>
-        {% endif %}
-
-        {% if weather.nivel_alerta %}
-        <div class="wi"><div class="wi-l">Alerta</div><div class="wi-v"><span class="nv nv-{{ weather.nivel_alerta[0] }}">{{ weather.nivel_alerta|upper }}</span></div></div>
+        {% if weather.horas_sol is not none %}
+        <div class="wi"><div class="wi-l">Horas de sol</div><div class="wi-v">{{ weather.horas_sol }} h</div></div>
         {% endif %}
     </div>
 </div>

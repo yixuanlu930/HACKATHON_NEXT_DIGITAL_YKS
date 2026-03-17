@@ -11,25 +11,25 @@ from services.llm_service import ask_llm, build_system_prompt, build_user_prompt
 citizen_bp = Blueprint("citizen", __name__)
 
 
-@citizen_bp.route("/weather", methods=["GET"])
-@jwt_required()
-def get_my_weather():
-    """Obtiene el tiempo actual para la provincia del ciudadano."""
-    identity = get_jwt_identity()
-    user = User.query.get(int(identity.split("|")[0]))
+# @citizen_bp.route("/weather", methods=["GET"])
+# @jwt_required()
+# def get_my_weather():
+#     """Obtiene el tiempo actual para la provincia del ciudadano."""
+#     identity = get_jwt_identity()
+#     user = User.query.get(int(identity.split("|")[0]))
 
-    weather = get_weather()
+#     weather = get_weather()
 
-    # Guardar en historial
-    log = WeatherLog(
-        user_id=user.id,
-        provincia=user.provincia,
-        datos=json.dumps(weather),
-    )
-    db.session.add(log)
-    db.session.commit()
+#     # Guardar en historial
+#     log = WeatherLog(
+#         user_id=user.id,
+#         provincia=user.provincia,
+#         datos=json.dumps(weather),
+#     )
+#     db.session.add(log)
+#     db.session.commit()
 
-    return jsonify(weather), 200
+#     return jsonify(weather), 200
 
 
 @citizen_bp.route("/recommendations", methods=["GET"])
@@ -63,6 +63,14 @@ def get_recommendations():
     user_prompt = build_user_prompt(user_dict, weather)
 
     respuesta = ask_llm(function="recommend", user_data=user_dict, weather_data=weather)
+    # Guardar en historial
+    log = WeatherLog(
+        user_id=user.id,
+        provincia=user.provincia,
+        datos=json.dumps(weather),
+    )
+    db.session.add(log)
+    db.session.commit()
 
     # Guardar consulta LLM en historial
     llm_log = LLMLog(
@@ -72,6 +80,9 @@ def get_recommendations():
         respuesta=respuesta,
     )
     db.session.add(llm_log)
+    db.session.commit()
+
+    db.session.add(log)
     db.session.commit()
 
     return jsonify({

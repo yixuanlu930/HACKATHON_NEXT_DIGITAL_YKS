@@ -10,7 +10,69 @@
                 <div class="fg"><label class="fl">Nombre completo *</label><input name="nombre" class="fi" required></div>
                 <div class="fg"><label class="fl">Email *</label><input type="email" name="email" class="fi" required></div>
             </div>
-            <div class="fg"><label class="fl">Contraseña *</label><input type="password" name="password" class="fi" required minlength="6"></div>
+
+            
+            <div class="fg">
+                <label class="fl">Contraseña *</label>
+                <div style="position:relative">
+                    <input type="password" name="password" id="pw1" class="fi" required minlength="8" style="padding-right:2.5rem"
+                        oninput="checkPw()" onfocus="this.type='password';document.getElementById('eye1').style.display='block'" onblur="setTimeout(()=>{this.type='password';document.getElementById('eye1').style.display='none'},200)">
+                    <button type="button" id="eye1" style="display:none;position:absolute;right:.6rem;top:50%;transform:translateY(-50%);background:0;border:0;color:var(--muted);cursor:pointer;font-size:1.1rem"
+                            onmousedown="document.getElementById('pw1').type='text'" onmouseup="document.getElementById('pw1').type='password'" onmouseleave="document.getElementById('pw1').type='password'">👁</button>
+                </div>
+                <div id="pwRules" class="pw-rules" style="margin-top:.5rem;font-size:.75rem;line-height:1.8">
+                    <div id="r1" class="pw-r">✕ Mínimo 8 caracteres</div>
+                    <div id="r2" class="pw-r">✕ Al menos una mayúscula</div>
+                    <div id="r3" class="pw-r">✕ Al menos una minúscula</div>
+                    <div id="r4" class="pw-r">✕ Al menos un número</div>
+                    <div id="r5" class="pw-r">✕ Al menos un carácter especial (!@#$%...)</div>
+                </div>
+            </div>
+            <div class="fg">
+                <label class="fl">Repetir contraseña *</label>
+                <div style="position:relative">
+                    <input type="password" id="pw2" class="fi" required style="padding-right:2.5rem"
+                        oninput="checkMatch()" onfocus="this.type='password';document.getElementById('eye2').style.display='block'" onblur="setTimeout(()=>{this.type='password';document.getElementById('eye2').style.display='none'},200)">
+                    <button type="button" id="eye2" style="display:none;position:absolute;right:.6rem;top:50%;transform:translateY(-50%);background:0;border:0;color:var(--muted);cursor:pointer;font-size:1.1rem"
+                            onmousedown="document.getElementById('pw2').type='text'" onmouseup="document.getElementById('pw2').type='password'" onmouseleave="document.getElementById('pw2').type='password'">👁</button>
+                </div>
+                <div id="pwMatch" style="margin-top:.4rem;font-size:.75rem"></div>
+            </div>
+
+            <script>
+            function checkPw(){
+                const pw=document.getElementById('pw1').value;
+                const rules=[
+                    [pw.length>=8,'r1'],
+                    [/[A-Z]/.test(pw),'r2'],
+                    [/[a-z]/.test(pw),'r3'],
+                    [/[0-9]/.test(pw),'r4'],
+                    [/[^A-Za-z0-9]/.test(pw),'r5'],
+                ];
+                rules.forEach(([ok,id])=>{
+                    const el=document.getElementById(id);
+                    el.style.color=ok?'var(--green)':'var(--red)';
+                    el.textContent=(ok?'✓ ':'✕ ')+el.textContent.slice(2);
+                });
+                checkMatch();
+            }
+            function checkMatch(){
+                const pw1=document.getElementById('pw1').value;
+                const pw2=document.getElementById('pw2').value;
+                const el=document.getElementById('pwMatch');
+                if(!pw2){el.textContent='';return;}
+                if(pw1===pw2){el.style.color='var(--green)';el.textContent='✓ Las contraseñas coinciden';}
+                else{el.style.color='var(--red)';el.textContent='✕ Las contraseñas no coinciden';}
+            }
+            document.querySelector('form').addEventListener('submit',function(e){
+                const pw=document.getElementById('pw1').value;
+                const ok=pw.length>=8&&/[A-Z]/.test(pw)&&/[a-z]/.test(pw)&&/[0-9]/.test(pw)&&/[^A-Za-z0-9]/.test(pw);
+                if(!ok){e.preventDefault();alert('La contraseña no cumple todos los requisitos.');return;}
+                if(pw!==document.getElementById('pw2').value){e.preventDefault();alert('Las contraseñas no coinciden.');}
+            });
+            </script>
+
+
             <hr class="sep">
             <div class="fr">
                 <div class="fg"><label class="fl">Provincia *</label><input name="provincia" class="fi" value="Valencia" required placeholder="Valencia"></div>

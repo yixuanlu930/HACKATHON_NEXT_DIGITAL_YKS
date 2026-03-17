@@ -53,6 +53,9 @@ def build_system_prompt_analyze() -> str:
     - presion_atmosferica: Presión atmosférica en hPa.
     - humedad_relativa: Humedad relativa en porcentaje.
     - nivel_alerta: Nivel de alerta meteorológica (VERDE, AMARILLO, NARANJA, ROJO) basado en los datos anteriores. 
+
+    Dame solo el JSON con la información solicitada, sin explicaciones ni texto adicional. Si algún dato no está disponible, pon null en su valor. 
+    NO empieces la respuesta con json. Solo devuelve el JSON puro. Empieza directamente con { y termina con }.
 """
 def build_user_prompt_analyze(weather_data: dict) -> str:
     """Construye el user_prompt con los datos meteorológicos actuales."""
@@ -102,7 +105,7 @@ def ask_llm(function:str = "analyze", user_data: dict = {},weather_data: dict = 
         response = requests.post(URL,headers ={"Authorization": f'Bearer {os.getenv("BEARER_TOKEN")}'}, json={"system_prompt": system_prompt, "user_prompt": user_prompt})
 
         if response.status_code == 200:
-            return response.json()
+            return response.json().get("response", {})
         else:
             return {"error": f"Error al comunicarse con el LLM: {response.status_code} - {response.text}"}
     else:
@@ -110,6 +113,6 @@ def ask_llm(function:str = "analyze", user_data: dict = {},weather_data: dict = 
         user_prompt = build_user_prompt(user_data, weather_data)
         response = requests.post(URL,headers ={"Authorization": f'Bearer {os.getenv("BEARER_TOKEN")}'}, json={"system_prompt": system_prompt, "user_prompt": user_prompt})
         if response.status_code == 200:
-            return response.json()
+            return response.json().get("response", {})
         else:
             return {"error": f"Error al comunicarse con el LLM: {response.status_code} - {response.text}"}

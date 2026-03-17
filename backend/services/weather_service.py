@@ -2,6 +2,7 @@ import requests
 from dotenv import load_dotenv
 import os
 from services.llm_service import ask_llm
+import json
 
 load_dotenv()
 
@@ -18,8 +19,10 @@ def get_weather(disaster: bool = False) -> dict:
         response.raise_for_status()
         raw = response.json()
 
+        normalized = _normalize_weather(raw).replace("json\n","").replace("```","").replace("```","").strip()
+
         # Normalizar respuesta para uso interno
-        return _normalize_weather(raw)
+        return json.loads(normalized)
 
     except requests.exceptions.RequestException as e:
         return {"error": str(e)}

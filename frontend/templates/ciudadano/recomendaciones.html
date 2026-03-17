@@ -11,10 +11,10 @@
 {% else %}
 
 {# ── Banner de nivel de alerta ── #}
-{% if data.nivel_alerta %}
-<div class="alert-ban ban-{{ data.nivel_alerta }} mb2">
-    <span>{% if data.nivel_alerta=='ROJO' %}🔴{% elif data.nivel_alerta=='AMARILLO' %}🟡{% else %}🟢{% endif %}</span>
-    <div><h3>Nivel de alerta: {{ data.nivel_alerta|upper }}</h3></div>
+{% if data.weather.nivel_alerta %}
+<div class="alert-ban ban-{{ data.weather.nivel_alerta }} mb2">
+    <span>{% if data.weather.nivel_alerta=='ROJO' %}🔴{% elif data.weather.nivel_alerta=='AMARILLO' %}🟡{% else %}🟢{% endif %}</span>
+    <div><h3>Nivel de alerta: {{ data.weather.nivel_alerta|upper }}</h3></div>
 </div>
 {% endif %}
 

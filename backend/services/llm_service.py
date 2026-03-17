@@ -60,7 +60,7 @@ def build_system_prompt_analyze() -> str:
     - indice_uv: Índice de radiación UV.
     - presion_atmosferica: Presión atmosférica en hPa.
     - humedad_relativa: Humedad relativa en porcentaje.
-    - nivel_alerta: Nivel de alerta meteorológica (VERDE, AMARILLO, NARANJA, ROJO) basado en los datos anteriores. 
+    - nivel_alerta: Nivel de alerta meteorológica (VERDE, AMARILLO, NARANJA, ROJO) basado en los datos anteriores. Por defecto, este campo será VERDE.
 
     Dame solo el JSON con la información solicitada, sin explicaciones ni texto adicional. Si algún dato no está disponible, pon null en su valor. 
     NO empieces la respuesta con json. Solo devuelve el JSON puro. Empieza directamente con { y termina con }.

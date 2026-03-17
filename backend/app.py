@@ -7,7 +7,7 @@ from flask_cors import CORS
 from config import Config
 import pymysql
 
-from extensions import db, jwt
+from extensions import db, jwt, socketio
 
 def create_app():
     app = Flask(__name__)
@@ -32,6 +32,7 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     CORS(app)
+    socketio.init_app(app)
 
     from routes.auth import auth_bp
     from routes.citizen import citizen_bp
@@ -63,4 +64,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True,host="0.0.0.0")
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)

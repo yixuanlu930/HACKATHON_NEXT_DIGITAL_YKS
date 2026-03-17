@@ -56,6 +56,8 @@ def list_alerts():
 @admin_required
 def create_alert():
     """Crea y emite una alerta a todos los ciudadanos (o de una provincia)."""
+    from extensions import socketio
+
     identity = get_jwt_identity()
     data = request.get_json()
 
@@ -71,7 +73,7 @@ def create_alert():
         titulo=data["titulo"],
         mensaje=data["mensaje"],
         nivel=data["nivel"],
-        provincia=data.get("provincia"),  # None = todas las provincias
+        provincia=data.get("provincia"),
         creado_por=int(identity.split("|")[0]),
     )
     db.session.add(alert)
@@ -83,6 +85,9 @@ def create_alert():
         query = query.filter_by(provincia=alert.provincia)
     afectados = query.count()
 
+    # ━━━ EMITIR ALERTA EN TIEMPO REAL VÍA WEBSOCKET ━━━
+    socketio.emit("nueva_alerta", alert.to_dict(), namespace="/")
+
     return jsonify({
         "message": f"Alerta emitida a {afectados} ciudadanos",
         "alert": alert.to_dict(),
@@ -93,9 +98,15 @@ def create_alert():
 @admin_required
 def deactivate_alert(alert_id):
     """Desactiva una alerta."""
+    from extensions import socketio
+
     alert = Alert.query.get_or_404(alert_id)
     alert.activa = False
     db.session.commit()
+
+    # ━━━ NOTIFICAR DESACTIVACIÓN EN TIEMPO REAL ━━━
+    socketio.emit("alerta_desactivada", {"id": alert_id}, namespace="/")
+
     return jsonify({"message": "Alerta desactivada"}), 200
 
 

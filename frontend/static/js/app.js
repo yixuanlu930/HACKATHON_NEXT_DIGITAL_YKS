@@ -69,7 +69,74 @@ function switchTab(name) {
 }
 
 // Start polling
-if (document.getElementById('notifWrap')) { poll(); setInterval(poll, 15000); }
+// ━━━ WEBSOCKET: ALERTAS EN TIEMPO REAL ━━━
+let socket = null;
+let wsConnected = false;
+
+function initWebSocket() {
+    try {
+        socket = io({ transports: ['websocket', 'polling'] });
+
+        socket.on('connect', () => {
+            console.log('[WS] Conectado — alertas en tiempo real');
+            wsConnected = true;
+        });
+
+        socket.on('disconnect', () => {
+            console.log('[WS] Desconectado — volviendo a polling');
+            wsConnected = false;
+        });
+
+        // ── Nueva alerta en tiempo real ──
+        socket.on('nueva_alerta', (alerta) => {
+            console.log('[WS] Nueva alerta recibida:', alerta);
+
+            // Toast inmediato
+            toast(alerta);
+
+            // Añadir banner al DOM
+            const banners = document.getElementById('alertBanners');
+            if (banners) {
+                const ico = alerta.nivel === 'rojo' ? '🔴' : alerta.nivel === 'amarillo' ? '🟡' : '🟢';
+                const div = document.createElement('div');
+                div.className = 'alert-ban ban-' + alerta.nivel;
+                div.dataset.id = alerta.id;
+                div.innerHTML = '<span>' + ico + '</span><div><h3>' + esc(alerta.titulo) + '</h3><p>' + esc(alerta.mensaje) + '</p><small>' + esc(alerta.provincia || 'Toda la comunidad') + '</small></div>';
+                banners.prepend(div);
+            }
+
+            // Actualizar campana
+            known.add(alerta.id);
+            poll(); // refrescar lista de notificaciones
+        });
+
+        // ── Alerta desactivada en tiempo real ──
+        socket.on('alerta_desactivada', (data) => {
+            console.log('[WS] Alerta desactivada:', data.id);
+
+            // Quitar banner del DOM
+            const banner = document.querySelector('[data-id="' + data.id + '"]');
+            if (banner) {
+                banner.style.opacity = '0';
+                setTimeout(() => banner.remove(), 300);
+            }
+
+            known.delete(data.id);
+            poll(); // refrescar campana
+        });
+
+    } catch (e) {
+        console.log('[WS] Error al conectar:', e);
+    }
+}
+
+// Start: WebSocket + polling como fallback
+if (document.getElementById('notifWrap')) {
+    poll();
+    initWebSocket();
+    // Polling más lento como fallback (cada 30s en vez de 15s)
+    setInterval(poll, wsConnected ? 60000 : 15000);
+}
 
 // ── Password visibility toggle ───────────────────
 function showPw(id) { document.getElementById(id).type = 'text'; }

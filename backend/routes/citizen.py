@@ -77,7 +77,7 @@ def get_recommendations():
         user_id=user.id,
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        respuesta=respuesta,
+        respuesta=json.dumps(respuesta) if isinstance(respuesta, (list, dict)) else str(respuesta),
     )
     db.session.add(llm_log)
     db.session.commit()

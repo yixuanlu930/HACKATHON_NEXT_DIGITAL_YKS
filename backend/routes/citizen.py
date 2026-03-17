@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
 
-from app import db
+from extensions import db
 from models.user import User
 from models.alert import Alert, WeatherLog, LLMLog
 from services.weather_service import get_weather

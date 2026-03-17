@@ -27,6 +27,7 @@ def api(method, path, json=None, token=None):
     url = f"{BACKEND}{path}"
     headers = {"Content-Type": "application/json"}
     tk = token or session.get("token")
+    print(f'El token es: {tk}')
     if tk:
         headers["Authorization"] = f"Bearer {tk}"
     try:
@@ -232,6 +233,7 @@ def citizen_dashboard():
 @login_required
 def citizen_weather():
     data, code = api("GET", "/api/citizen/weather")
+    print(f'Hola')
     error = data.get("error") if code != 200 else None
     return render_template("ciudadano/clima.html", weather=data, error=error)
 

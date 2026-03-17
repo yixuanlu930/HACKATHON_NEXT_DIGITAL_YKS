@@ -13,7 +13,7 @@
 {# ── Banner de nivel de alerta ── #}
 {% if data.nivel_alerta %}
 <div class="alert-ban ban-{{ data.nivel_alerta }} mb2">
-    <span>{% if data.nivel_alerta=='rojo' %}🔴{% elif data.nivel_alerta=='amarillo' %}🟡{% else %}🟢{% endif %}</span>
+    <span>{% if data.nivel_alerta=='ROJO' %}🔴{% elif data.nivel_alerta=='AMARILLO' %}🟡{% else %}🟢{% endif %}</span>
     <div><h3>Nivel de alerta: {{ data.nivel_alerta|upper }}</h3></div>
 </div>
 {% endif %}
@@ -56,7 +56,14 @@
 <div class="card">
     <h3 class="mb2">🤖 Instrucciones personalizadas</h3>
     <div class="reco">
-        <div class="reco-text">{{ data.recomendacion }}</div>
+        <ol class="reco-list">
+            {% for paso in data.recomendacion.instrucciones %}
+            <li class="reco-item">
+                <span class="reco-num">{{ loop.index }}</span>
+                <span class="reco-text">{{ paso }}</span>
+            </li>
+            {% endfor %}
+        </ol>
     </div>
     <p class="ts tm mt2">Tu perfil: {{ current_user.tipo_vivienda }} en {{ current_user.provincia }}{% if current_user.necesidades_especiales %} · {{ current_user.necesidades_especiales }}{% endif %}</p>
 </div>

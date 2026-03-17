@@ -232,27 +232,27 @@ def citizen_dashboard():
     return render_template("ciudadano/dashboard.html", alertas=alertas)
 
 
-@app.route("/ciudadano/clima")
-@login_required
-def citizen_weather():
-    data, code = api("GET", "/api/citizen/weather")
-    error = data.get("error") if code != 200 else None
-    return render_template("ciudadano/clima.html", weather=data, error=error)
+# @app.route("/ciudadano/clima")
+# @login_required
+# def citizen_weather():
+#     data, code = api("GET", "/api/citizen/weather")
+#     error = data.get("error") if code != 200 else None
+#     return render_template("ciudadano/clima.html", weather=data, error=error)
 
 
 @app.route("/ciudadano/recomendaciones")
 @login_required
 def citizen_recommendations():
-    data_recomendations, code_recomendations = api("GET", "/api/citizen/recommendations")
-    data_clima, code_clima = api("GET", "/api/citizen/weather")
+    data, code_recomendations = api("GET", "/api/citizen/recommendations")
+    #data_clima, code_clima = api("GET", "/api/citizen/weather")
 
-    error_recomendations = data_recomendations.get("error") if code_recomendations != 200 else None
-    error_clima = data_clima.get("error") if code_clima != 200 else None
+    error_recomendations = data.get("error") if code_recomendations != 200 else None
+    #error_clima = data_clima.get("error") if code_clima != 200 else None
 
-    error = error_recomendations or error_clima
-    data_recomendations = data_recomendations if code_recomendations == 200 else None
-    data_clima = data_clima if code_clima == 200 else None
-    return render_template("ciudadano/recomendaciones.html", data=data_recomendations, error=error)
+    error = error_recomendations #or error_clima
+    data = data if code_recomendations == 200 else None
+    #data_clima = data.get('weather') if code_recomendations == 200 else None
+    return render_template("ciudadano/recomendaciones.html", data=data, error=error)
 
 
 @app.route("/ciudadano/historial")

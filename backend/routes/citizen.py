@@ -18,7 +18,7 @@ def get_my_weather():
     identity = get_jwt_identity()
     user = User.query.get(identity["id"])
 
-    weather = get_weather(user.provincia)
+    weather = get_weather()
 
     # Guardar en historial
     log = WeatherLog(
@@ -39,7 +39,7 @@ def get_recommendations():
     identity = get_jwt_identity()
     user = User.query.get(identity["id"])
 
-    weather = get_weather(user.provincia)
+    weather = get_weather()
     if "error" in weather:
         return jsonify({"error": "No se pudo obtener el tiempo"}), 503
 

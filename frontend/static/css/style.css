@@ -113,7 +113,7 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:1rem 0}
 
 /* Auth */
 .auth-pg{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem;background:radial-gradient(ellipse at 30% 20%,rgba(232,168,56,.04),transparent 60%),var(--bg)}
-.auth-pg .main{display:flex;align-items:center;justify-content:center;flex:1;padding:0}
+.auth-pg .main{display:flex;align-items:center;justify-content:center;flex:1;padding:0;margin-top:-8rem}
 .auth-box{width:100%;max-width:440px} .auth-head{text-align:center;margin-bottom:1.5rem}
 .auth-head h1{font-size:1.3rem;font-weight:700} .auth-head p{color:var(--muted);font-size:.86rem;margin-top:.2rem}
 .auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:1.5rem}

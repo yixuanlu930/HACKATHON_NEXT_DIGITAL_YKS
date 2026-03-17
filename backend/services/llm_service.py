@@ -122,6 +122,6 @@ def ask_llm(function:str = "analyze", user_data: dict = {},weather_data: dict = 
         response = requests.post(URL,headers ={"Authorization": f'Bearer {os.getenv("BEARER_TOKEN")}'}, json={"system_prompt": system_prompt, "user_prompt": user_prompt})
         if response.status_code == 200:
             response = response.json().get("response", "").replace("json\n","").replace("```","").replace("```","").strip()
-            return json.loads(response)
+            return response
         else:
             return {"error": f"Error al comunicarse con el LLM: {response.status_code} - {response.text}"}

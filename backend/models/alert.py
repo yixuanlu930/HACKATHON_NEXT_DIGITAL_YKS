@@ -59,9 +59,15 @@ class LLMLog(db.Model):
     consultado_en = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
+        import json
+        respuesta = self.respuesta
+        try:
+            respuesta = json.loads(respuesta)
+        except (json.JSONDecodeError, TypeError):
+            pass
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "respuesta": self.respuesta,
+            "respuesta": respuesta,
             "consultado_en": self.consultado_en.isoformat(),
         }

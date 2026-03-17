@@ -93,12 +93,37 @@ hr.sep{border:0;border-top:1px solid var(--border);margin:1rem 0}
 /*.reco-text{white-space:pre-wrap;line-height:1.7;font-size:.88rem}*/
 
 .reco-list {
-    list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: pasos;
+}
+.reco-list li {
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    gap: .8rem;
+    align-items: baseline;
+    padding: .65rem 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    line-height: 1.6;
+    font-size: .88rem;
+    counter-increment: pasos;
+}
+.reco-list li:last-child {
+    border-bottom: none;
+}
+.reco-list li::before {
+    content: counter(pasos);
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #534AB7;
+    color: #fff;
+    border-radius: 50%;
+    font-size: .75rem;
+    font-weight: 600;
 }
 
 .reco-item {

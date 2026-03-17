@@ -61,18 +61,16 @@
     <div class="card mb2">
         <span class="ts tm">📅 {{ l.consultado_en[:16] }} · User #{{ l.user_id }}</span>
         <div class="reco mt1">
-            {% if l.respuesta is mapping and l.respuesta.instrucciones %}
-                <ol class="reco-list">
-                {% for paso in l.respuesta.instrucciones %}
-                    <li>{{ paso }}</li>
-                {% endfor %}
-                </ol>
-            {% elif l.respuesta is string %}
-                <div class="reco-text">{{ l.respuesta }}</div>
-            {% else %}
-                <div class="reco-text">{{ l.respuesta }}</div>
-            {% endif %}
-        </div>
+    {% if l.respuesta is mapping and l.respuesta.instrucciones %}
+        <ol class="reco-list">
+        {% for paso in l.respuesta.instrucciones %}
+            <li>{{ paso }}</li>
+        {% endfor %}
+        </ol>
+    {% else %}
+        <div class="reco-text">{{ l.respuesta }}</div>
+    {% endif %}
+</div>
     </div>
     {% endfor %}
 {% else %}<div class="empty"><p>Sin registros.</p></div>{% endif %}

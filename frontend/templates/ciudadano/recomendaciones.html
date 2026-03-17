@@ -64,10 +64,7 @@
     <div class="reco">
         <ol class="reco-list">
             {% for paso in data.recomendacion.instrucciones %}
-            <li class="reco-item">
-                <span class="reco-num">{{ loop.index }}</span>
-                <span class="reco-text">{{ paso }}</span>
-            </li>
+            <li>{{ paso }}</li>
             {% endfor %}
         </ol>
     </div>

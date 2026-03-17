@@ -26,7 +26,7 @@ def admin_required(fn):
 @admin_required
 def get_weather_admin(provincia):
     """Obtiene el tiempo para cualquier provincia."""
-    weather = get_weather(provincia)
+    weather = get_weather()
     return jsonify(weather), 200
 
 

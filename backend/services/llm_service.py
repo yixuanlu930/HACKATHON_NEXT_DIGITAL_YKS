@@ -63,7 +63,7 @@ def build_user_prompt_analyze(weather_data: dict) -> str:
     """
 
 
-def build_user_prompt(user_data: dict) -> str:
+def build_user_prompt(user_data: dict, weather_data: dict) -> str:
     """Construye el user_prompt con los datos del usuario."""
     return f"""Los datos del usuario son:
     - Nombre: {user_data.get('nombre')}
@@ -80,14 +80,25 @@ def build_user_prompt(user_data: dict) -> str:
     - Detalle mascotas: {user_data.get('detalle_mascotas') or 'N/A'}
     - Teléfono emergencia: {user_data.get('telefono_emergencia') or 'No proporcionado'}
 
+    El clima actual en su provincia es:
+    - Temperatura: {weather_data.get('temperatura', 'N/A')} °C
+    - Probabilidad de precipitación: {weather_data.get('probabilidad_precipitacion', 'N/A')} %
+    - Volumen de precipitación: {weather_data.get('volumen_precipitacion', 'N/A')} mm
+    - Velocidad del viento: {weather_data.get('velocidad_viento', 'N/A')} km/h
+    - Dirección del viento: {weather_data.get('direccion_viento', 'N/A')} °
+    - Índice UV: {weather_data.get('indice_uv', 'N/A')}
+    - Presión atmosférica: {weather_data.get('presion_atmosferica', 'N/A')} hPa
+    - Humedad relativa: {weather_data.get('humedad_relativa', 'N/A')} %
+    - Nivel de alerta: {weather_data.get('nivel_alerta', 'N/A')}
+
     ¿Qué debe hacer este ciudadano para protegerse? Da instrucciones concretas, numeradas y personalizadas según su perfil."""
 
 
 
-def ask_llm(function:str = "analyze", data: dict = {}) -> str:
+def ask_llm(function:str = "analyze", user_data: dict = {},weather_data: dict = {}) -> str:
     if function == "analyze":
         system_prompt = build_system_prompt_analyze()
-        user_prompt = build_user_prompt_analyze(data)
+        user_prompt = build_user_prompt_analyze(weather_data)
         response = requests.post(URL,headers ={"Authorization": f'Bearer {os.getenv("BEARER_TOKEN")}'}, json={"system_prompt": system_prompt, "user_prompt": user_prompt})
 
         if response.status_code == 200:
@@ -96,7 +107,7 @@ def ask_llm(function:str = "analyze", data: dict = {}) -> str:
             return {"error": f"Error al comunicarse con el LLM: {response.status_code} - {response.text}"}
     else:
         system_prompt = build_system_prompt()
-        user_prompt = build_user_prompt(data)
+        user_prompt = build_user_prompt(user_data, weather_data)
         response = requests.post(URL,headers ={"Authorization": f'Bearer {os.getenv("BEARER_TOKEN")}'}, json={"system_prompt": system_prompt, "user_prompt": user_prompt})
         if response.status_code == 200:
             return response.json()

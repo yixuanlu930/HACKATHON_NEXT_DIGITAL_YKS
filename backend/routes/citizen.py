@@ -43,10 +43,10 @@ def get_recommendations():
     if "error" in weather:
         return jsonify({"error": "No se pudo obtener el tiempo"}), 503
 
-    system_prompt = build_system_prompt(user)
-    user_prompt = build_user_prompt(weather)
+    system_prompt = build_system_prompt()
+    user_prompt = build_user_prompt(user, weather)
 
-    respuesta = ask_llm(system_prompt, user_prompt)
+    respuesta = ask_llm(function="recommend", user_data=user, weather_data=weather)
 
     # Guardar consulta LLM en historial
     llm_log = LLMLog(

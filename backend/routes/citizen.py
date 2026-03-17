@@ -87,7 +87,7 @@ def get_recommendations():
 
     return jsonify({
         "weather": weather,
-        "recomendacion": respuesta,
+        "recomendacion": json.loads(respuesta),
         "nivel_alerta": weather.get("nivel_alerta"),
     }), 200
 

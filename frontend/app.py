@@ -24,7 +24,7 @@ BACKEND = os.environ.get("BACKEND_URL", "http://localhost:5000")
 
 def api(method, path, json=None, token=None):
     """Hace una petición al backend y devuelve (data, status_code)."""
-    url = f"{BACKEND}/{path}"
+    url = f"{BACKEND}{path}"
     headers = {"Content-Type": "application/json"}
     tk = token or session.get("token")
     if tk:

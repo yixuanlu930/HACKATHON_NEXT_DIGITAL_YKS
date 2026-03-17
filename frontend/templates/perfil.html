@@ -6,45 +6,151 @@
 <div class="g g2">
     <div class="card">
         <form method="POST">
+            <!-- Datos personales -->
+            <p class="section-title">👤 Datos personales</p>
             <div class="fg"><label class="fl">Nombre</label><input name="nombre" class="fi" value="{{ user.nombre }}" required></div>
             <div class="fg"><label class="fl">Email</label><input class="fi" value="{{ user.email }}" disabled></div>
+
+            <hr class="sep">
+
+            <!-- Ubicación -->
+            <p class="section-title">📍 Ubicación</p>
             <div class="fr">
                 <div class="fg"><label class="fl">Provincia</label><input name="provincia" class="fi" value="{{ user.provincia }}"></div>
-                <div class="fg"><label class="fl">Tipo de vivienda</label>
-                    <select name="tipo_vivienda" class="fs">
-                        <option value="Sótano" {{ 'selected' if user.tipo_vivienda=='Sótano' }}>Sótano</option>
-                        <option value="Planta baja" {{ 'selected' if user.tipo_vivienda=='Planta baja' }}>Planta baja</option>
-                        <option value="Piso alto" {{ 'selected' if user.tipo_vivienda=='Piso alto' }}>Piso alto</option>
-                        <option value="Casa de campo" {{ 'selected' if user.tipo_vivienda=='Casa de campo' }}>Casa de campo</option>
+                <div class="fg"><label class="fl">Municipio</label><input name="municipio" class="fi" value="{{ user.municipio }}"></div>
+            </div>
+            <div class="fr">
+                <div class="fg"><label class="fl">Código postal</label><input name="codigo_postal" class="fi" value="{{ user.codigo_postal }}" maxlength="5"></div>
+                <div class="fg"><label class="fl">¿Cerca de barranco/rambla?</label>
+                    <select name="cerca_cauce" class="fs">
+                        <option value="false" {{ '' if user.cerca_cauce else 'selected' }}>No</option>
+                        <option value="true" {{ 'selected' if user.cerca_cauce else '' }}>Sí</option>
                     </select>
                 </div>
             </div>
-            <div class="fg">
-                <label class="fl">Necesidades especiales</label>
-                {% set necs = (user.necesidades_especiales or '') %}
-                <div class="checks">
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Silla de ruedas" {{ 'checked' if 'Silla de ruedas' in necs }}><span>Silla de ruedas</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Persona dependiente" {{ 'checked' if 'Persona dependiente' in necs }}><span>Persona dependiente</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Mascotas" {{ 'checked' if 'Mascotas' in necs }}><span>Mascotas</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Movilidad reducida" {{ 'checked' if 'Movilidad reducida' in necs }}><span>Movilidad reducida</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Persona mayor" {{ 'checked' if 'Persona mayor' in necs }}><span>Persona mayor</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Niños pequeños" {{ 'checked' if 'Niños pequeños' in necs }}><span>Niños pequeños</span></label>
+
+            <hr class="sep">
+
+            <!-- Vivienda -->
+            <p class="section-title">🏠 Vivienda</p>
+            <div class="fr">
+                <div class="fg"><label class="fl">Tipo de vivienda</label>
+                    <select name="tipo_vivienda" class="fs" id="vivSel" onchange="document.getElementById('plantaRow').style.display=this.value==='Piso alto'?'':'none'">
+                        <option value="Sótano" {{ 'selected' if user.tipo_vivienda=='Sótano' }}>Sótano</option>
+                        <option value="Semisótano" {{ 'selected' if user.tipo_vivienda=='Semisótano' }}>Semisótano</option>
+                        <option value="Planta baja" {{ 'selected' if user.tipo_vivienda=='Planta baja' }}>Planta baja</option>
+                        <option value="Bajo con patio/jardín" {{ 'selected' if user.tipo_vivienda=='Bajo con patio/jardín' }}>Bajo con patio/jardín</option>
+                        <option value="Piso alto" {{ 'selected' if user.tipo_vivienda=='Piso alto' }}>Piso alto</option>
+                        <option value="Casa de campo" {{ 'selected' if user.tipo_vivienda=='Casa de campo' }}>Casa de campo</option>
+                        <option value="Urbanización cerrada" {{ 'selected' if user.tipo_vivienda=='Urbanización cerrada' }}>Urbanización cerrada</option>
+                    </select>
+                </div>
+                {% if user.tipo_vivienda=='Piso alto' %}style=""{% else %}style="display:none"{% endif %}
+                    <label class="fl">Nº planta</label>
+                    <input type="number" name="numero_planta" class="fi" value="{{ user.numero_planta }}" min="1" max="30">
                 </div>
             </div>
+            <div class="fg"><label class="fl">Personas en el hogar</label><input type="number" name="num_personas" class="fi" value="{{ user.num_personas }}" min="1" style="max-width:120px"></div>
+
+            <hr class="sep">
+
+            <!-- Vehículo -->
+            <p class="section-title">🚗 Vehículo</p>
+            <div class="fr">
+                <div class="fg"><label class="fl">¿Tiene vehículo?</label>
+                    <select name="tiene_vehiculo" class="fs" id="vehSel" onchange="toggleVeh()">
+                        <option value="false" {{ '' if user.tiene_vehiculo else 'selected' }}>No</option>
+                        <option value="true" {{ 'selected' if user.tiene_vehiculo else '' }}>Sí</option>
+                    </select>
+                </div>
+                {% if user.tiene_vehiculo %}style=""{% else %}style="display:none"{% endif %}                    
+                <label class="fl">¿Garaje subterráneo?</label>
+                    <select name="garaje_subterraneo" class="fs" id="garSel" onchange="toggleGar()">
+                        <option value="false" {{ '' if user.garaje_subterraneo else 'selected' }}>No</option>
+                        <option value="true" {{ 'selected' if user.garaje_subterraneo else '' }}>Sí</option>
+                    </select>
+                </div>
+            </div>
+            {% if user.garaje_subterraneo %}style=""{% else %}style="display:none"{% endif %}
+                <label class="fl">Planta del garaje</label>
+                <select name="planta_garaje" class="fs">
+                    <option value="-1" {{ 'selected' if user.planta_garaje=='-1' }}>Sótano -1</option>
+                    <option value="-2" {{ 'selected' if user.planta_garaje=='-2' }}>Sótano -2</option>
+                    <option value="-3" {{ 'selected' if user.planta_garaje=='-3' }}>Sótano -3 o inferior</option>
+                </select>
+                <p style="font-size:.68rem;color:var(--red);margin-top:.2rem">⚠️ NUNCA bajes al garaje durante una inundación</p>
+            </div>
+
+            <hr class="sep">
+
+            <!-- Necesidades -->
+            <p class="section-title">⚕️ Necesidades especiales</p>
+            {% set necs = (user.necesidades_especiales or '') %}
+            <div class="checks" style="grid-template-columns:1fr 1fr">
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Silla de ruedas" {{ 'checked' if 'Silla de ruedas' in necs }}><span>Silla de ruedas</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Movilidad reducida" {{ 'checked' if 'Movilidad reducida' in necs }}><span>Movilidad reducida</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Persona dependiente" {{ 'checked' if 'Persona dependiente' in necs }}><span>Persona dependiente</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Persona mayor" {{ 'checked' if 'Persona mayor' in necs }}><span>Persona mayor</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Niños pequeños" {{ 'checked' if 'Niños pequeños' in necs }}><span>Niños pequeños</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Embarazada" {{ 'checked' if 'Embarazada' in necs }}><span>Embarazada</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Equipo médico eléctrico" {{ 'checked' if 'Equipo médico eléctrico' in necs }}><span>Equipo médico eléctrico</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="No habla español" {{ 'checked' if 'No habla español' in necs }}><span>No habla español</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Mascotas" {{ 'checked' if 'Mascotas' in necs }}><span>Mascotas</span></label>
+            </div>
+            <div class="fg mt1"><label class="fl">Detalle de mascotas</label><input name="detalle_mascotas" class="fi" value="{{ user.detalle_mascotas }}" placeholder="2 perros grandes, 1 gato"></div>
+
+            <hr class="sep">
+
+            <!-- Contacto -->
+            <p class="section-title">📞 Contacto de emergencia</p>
+            <div class="fg"><label class="fl">Teléfono familiar fuera de zona</label><input name="telefono_emergencia" class="fi" value="{{ user.telefono_emergencia }}"></div>
+
             <button type="submit" class="btn btn-p btn-bl">Guardar cambios</button>
         </form>
     </div>
-    <div class="card">
-        <h3 class="mb2">🛡️ Tu perfil de seguridad</h3>
-        <p class="ts tm" style="line-height:1.8">
-            <b style="color:var(--text)">{{ user.nombre }}</b> vive en
-            <b style="color:var(--text)">{{ user.provincia }}</b>, en
-            <b style="color:var(--text)">{{ user.tipo_vivienda }}</b>.
-            {% if user.necesidades_especiales %}
-            Necesidades especiales: <b style="color:var(--text)">{{ user.necesidades_especiales }}</b>.
-            {% endif %}
-        </p>
-        <p class="ts tm mt2">Este perfil es lo que la IA usa para darte instrucciones personalizadas ante una emergencia.</p>
+
+    <div>
+        <div class="card mb2">
+            <h3 class="mb2">🛡️ Tu perfil de seguridad</h3>
+            <p class="ts tm" style="line-height:1.8">
+                <b style="color:var(--text)">{{ user.nombre }}</b> vive en
+                <b style="color:var(--text)">{{ user.municipio or user.provincia }}</b>
+                ({{ user.provincia }}){% if user.codigo_postal %}, CP {{ user.codigo_postal }}{% endif %}.
+                Vivienda: <b style="color:var(--text)">{{ user.tipo_vivienda }}{% if user.tipo_vivienda == 'Piso alto' and user.numero_planta %} (planta {{ user.numero_planta }}){% endif %}</b>.
+                {{ user.num_personas or 1 }} persona(s) en el hogar.
+                {% if user.cerca_cauce %}<br><span style="color:var(--red)">⚠️ Vive cerca de un barranco/rambla.</span>{% endif %}
+                {% if user.tiene_vehiculo %}
+                <br>Tiene vehículo{% if user.garaje_subterraneo %} en garaje subterráneo (planta {{ user.planta_garaje }}){% endif %}.
+                {% endif %}
+                {% if user.necesidades_especiales %}<br>Necesidades: {{ user.necesidades_especiales }}.{% endif %}
+                {% if user.detalle_mascotas %}<br>Mascotas: {{ user.detalle_mascotas }}.{% endif %}
+            </p>
+            <p class="ts tm mt2">Este es el perfil que la IA usa para darte instrucciones personalizadas.</p>
+        </div>
+        <div class="card">
+            <h3 class="mb2">ℹ️ ¿Por qué tantos datos?</h3>
+            <p class="ts tm" style="line-height:1.7">
+                Cada dato cambia las instrucciones que recibes. Si vives en un sótano cerca de una rambla, 
+                las instrucciones son MUY diferentes a las de alguien en un 8º piso. Si tienes mascotas grandes
+                o personas con movilidad reducida, la evacuación requiere más planificación. 
+                Si tu coche está en un garaje subterráneo, necesitas saber que NUNCA debes bajar a buscarlo
+                durante una inundación — muchas de las víctimas de la DANA en Valencia murieron así.
+            </p>
+        </div>
     </div>
 </div>
+
+<script>
+function toggleVeh(){
+    const si = document.getElementById('vehSel').value==='true';
+    document.getElementById('garajeRow').style.display = si ? '' : 'none';
+    if(!si){
+        document.getElementById('pGarRow').style.display='none';
+        document.getElementById('garSel').value='false';
+    }
+}
+function toggleGar(){
+    document.getElementById('pGarRow').style.display = document.getElementById('garSel').value==='true' ? '' : 'none';
+}
+</script>
 {% endblock %}

@@ -2,16 +2,19 @@
 {% block title %}Registro — ClimAlert{% endblock %}
 {% block body_class %}auth-pg{% endblock %}
 {% block content %}
-<div class="auth-box" style="max-width:540px">
+<div class="auth-box" style="max-width:600px">
     <div class="auth-head"><span style="font-size:2.5rem">⚡</span><h1>Crear Cuenta</h1><p>Protege tu hogar ante emergencias climáticas</p></div>
     <div class="auth-card">
-        <form method="POST">
+        <form method="POST" id="regForm">
+
+            <!-- ═══ DATOS PERSONALES ═══ -->
+            <p class="section-title">👤 Datos personales</p>
             <div class="fr">
                 <div class="fg"><label class="fl">Nombre completo *</label><input name="nombre" class="fi" required></div>
                 <div class="fg"><label class="fl">Email *</label><input type="email" name="email" class="fi" required></div>
             </div>
 
-            
+            <!-- Contraseña con validación -->
             <div class="fg">
                 <label class="fl">Contraseña *</label>
                 <div style="position:relative">
@@ -21,12 +24,12 @@
                             onmousedown="showPw('pw1')" onmouseup="hidePw('pw1')" onmouseleave="hidePw('pw1')"
                             ontouchstart="showPw('pw1')" ontouchend="hidePw('pw1')">👁</button>
                 </div>
-                <div id="pwRules" class="pw-rules" style="margin-top:.5rem;font-size:.75rem;line-height:1.8">
-                    <div id="r1" class="pw-r">✕ Mínimo 8 caracteres</div>
-                    <div id="r2" class="pw-r">✕ Al menos una mayúscula</div>
-                    <div id="r3" class="pw-r">✕ Al menos una minúscula</div>
-                    <div id="r4" class="pw-r">✕ Al menos un número</div>
-                    <div id="r5" class="pw-r">✕ Al menos un carácter especial (!@#$%...)</div>
+                <div style="margin-top:.4rem;font-size:.73rem;line-height:1.7">
+                    <div id="r1" class="pw-r" style="color:var(--red)">✕ Mínimo 8 caracteres</div>
+                    <div id="r2" class="pw-r" style="color:var(--red)">✕ Al menos una mayúscula</div>
+                    <div id="r3" class="pw-r" style="color:var(--red)">✕ Al menos una minúscula</div>
+                    <div id="r4" class="pw-r" style="color:var(--red)">✕ Al menos un número</div>
+                    <div id="r5" class="pw-r" style="color:var(--red)">✕ Al menos un carácter especial (!@#$%...)</div>
                 </div>
             </div>
             <div class="fg">
@@ -38,70 +41,150 @@
                             onmousedown="showPw('pw2')" onmouseup="hidePw('pw2')" onmouseleave="hidePw('pw2')"
                             ontouchstart="showPw('pw2')" ontouchend="hidePw('pw2')">👁</button>
                 </div>
-                <div id="pwMatch" style="margin-top:.4rem;font-size:.75rem"></div>
+                <div id="pwMatch" style="margin-top:.3rem;font-size:.73rem"></div>
             </div>
 
-            <script>
-            function checkPw(){
-                const pw=document.getElementById('pw1').value;
-                const rules=[
-                    [pw.length>=8,'r1'],
-                    [/[A-Z]/.test(pw),'r2'],
-                    [/[a-z]/.test(pw),'r3'],
-                    [/[0-9]/.test(pw),'r4'],
-                    [/[^A-Za-z0-9]/.test(pw),'r5'],
-                ];
-                rules.forEach(([ok,id])=>{
-                    const el=document.getElementById(id);
-                    el.style.color=ok?'var(--green)':'var(--red)';
-                    el.textContent=(ok?'✓ ':'✕ ')+el.textContent.slice(2);
-                });
-                checkMatch();
-            }
-            function checkMatch(){
-                const pw1=document.getElementById('pw1').value;
-                const pw2=document.getElementById('pw2').value;
-                const el=document.getElementById('pwMatch');
-                if(!pw2){el.textContent='';return;}
-                if(pw1===pw2){el.style.color='var(--green)';el.textContent='✓ Las contraseñas coinciden';}
-                else{el.style.color='var(--red)';el.textContent='✕ Las contraseñas no coinciden';}
-            }
-            document.querySelector('form').addEventListener('submit',function(e){
-                const pw=document.getElementById('pw1').value;
-                const ok=pw.length>=8&&/[A-Z]/.test(pw)&&/[a-z]/.test(pw)&&/[0-9]/.test(pw)&&/[^A-Za-z0-9]/.test(pw);
-                if(!ok){e.preventDefault();alert('La contraseña no cumple todos los requisitos.');return;}
-                if(pw!==document.getElementById('pw2').value){e.preventDefault();alert('Las contraseñas no coinciden.');}
-            });
-            </script>
-
-
             <hr class="sep">
+
+            <!-- ═══ UBICACIÓN ═══ -->
+            <p class="section-title">📍 Ubicación</p>
             <div class="fr">
-                <div class="fg"><label class="fl">Provincia *</label><input name="provincia" class="fi" value="Valencia" required placeholder="Valencia"></div>
-                <div class="fg"><label class="fl">Tipo de vivienda *</label>
-                    <select name="tipo_vivienda" class="fs" required>
-                        <option value="">Seleccionar…</option>
-                        <option value="Sótano">Sótano</option>
-                        <option value="Planta baja">Planta baja</option>
-                        <option value="Piso alto">Piso alto</option>
-                        <option value="Casa de campo">Casa de campo</option>
+                <div class="fg"><label class="fl">Provincia *</label><input name="provincia" class="fi" value="Valencia" required></div>
+                <div class="fg"><label class="fl">Municipio</label><input name="municipio" class="fi" placeholder="Paiporta, Alfafar, Catarroja…"></div>
+            </div>
+            <div class="fr">
+                <div class="fg"><label class="fl">Código postal</label><input name="codigo_postal" class="fi" placeholder="46200" maxlength="5"></div>
+                <div class="fg"><label class="fl">¿Vives cerca de un barranco o rambla?</label>
+                    <select name="cerca_cauce" class="fs">
+                        <option value="false">No</option>
+                        <option value="true">Sí, a menos de 500m</option>
                     </select>
                 </div>
             </div>
-            <div class="fg">
-                <label class="fl">Necesidades especiales</label>
-                <div class="checks">
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Silla de ruedas"><span>Silla de ruedas</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Persona dependiente"><span>Persona dependiente</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Mascotas"><span>Mascotas</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Movilidad reducida"><span>Movilidad reducida</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Persona mayor"><span>Persona mayor</span></label>
-                    <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Niños pequeños"><span>Niños pequeños</span></label>
+
+            <hr class="sep">
+
+            <!-- ═══ VIVIENDA ═══ -->
+            <p class="section-title">🏠 Vivienda</p>
+            <div class="fr">
+                <div class="fg"><label class="fl">Tipo de vivienda *</label>
+                    <select name="tipo_vivienda" class="fs" id="vivSel" required onchange="togglePlanta()">
+                        <option value="">Seleccionar…</option>
+                        <option value="Sótano">Sótano (garaje/trastero habitable)</option>
+                        <option value="Semisótano">Semisótano (medio enterrado con ventanas)</option>
+                        <option value="Planta baja">Planta baja</option>
+                        <option value="Bajo con patio/jardín">Bajo con patio / jardín</option>
+                        <option value="Piso alto">Piso alto</option>
+                        <option value="Casa de campo">Casa de campo / chalet</option>
+                        <option value="Urbanización cerrada">Urbanización cerrada</option>
+                    </select>
+                </div>
+                <div class="fg" id="plantaRow" style="display:none">
+                    <label class="fl">Número de planta</label>
+                    <input type="number" name="numero_planta" class="fi" min="1" max="30" placeholder="Ej: 3">
+                    <p style="font-size:.68rem;color:var(--dim);margin-top:.2rem">A partir del 3º piso, menor riesgo de inundación</p>
                 </div>
             </div>
-            <button type="submit" class="btn btn-p btn-bl mt2">Crear cuenta</button>
+            <div class="fg">
+                <label class="fl">Personas en el hogar</label>
+                <input type="number" name="num_personas" class="fi" value="1" min="1" max="20" style="max-width:120px">
+            </div>
+
+            <hr class="sep">
+
+            <!-- ═══ VEHÍCULO ═══ -->
+            <p class="section-title">🚗 Vehículo</p>
+            <div class="fr">
+                <div class="fg"><label class="fl">¿Tiene vehículo?</label>
+                    <select name="tiene_vehiculo" class="fs" id="vehSel" onchange="toggleGaraje()">
+                        <option value="false">No</option>
+                        <option value="true">Sí</option>
+                    </select>
+                </div>
+                <div class="fg" id="garajeRow" style="display:none">
+                    <label class="fl">¿Garaje subterráneo?</label>
+                    <select name="garaje_subterraneo" class="fs" id="garSel" onchange="togglePlantaGaraje()">
+                        <option value="false">No</option>
+                        <option value="true">Sí</option>
+                    </select>
+                </div>
+            </div>
+            <div class="fg" id="plantaGarajeRow" style="display:none">
+                <label class="fl">Planta del garaje</label>
+                <select name="planta_garaje" class="fs">
+                    <option value="-1">Sótano -1</option>
+                    <option value="-2">Sótano -2</option>
+                    <option value="-3">Sótano -3 o inferior</option>
+                </select>
+                <p style="font-size:.68rem;color:var(--red);margin-top:.2rem">⚠️ NUNCA bajes al garaje durante una inundación</p>
+            </div>
+
+            <hr class="sep">
+
+            <!-- ═══ NECESIDADES ESPECIALES ═══ -->
+            <p class="section-title">⚕️ Necesidades especiales del hogar</p>
+            <div class="checks" style="grid-template-columns:1fr 1fr">
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Silla de ruedas"><span>Silla de ruedas</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Movilidad reducida"><span>Movilidad reducida</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Persona dependiente"><span>Persona dependiente</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Persona mayor"><span>Persona mayor</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Niños pequeños"><span>Niños pequeños</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Embarazada"><span>Embarazada</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Equipo médico eléctrico"><span>Equipo médico eléctrico (oxígeno, etc.)</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="No habla español"><span>No habla español</span></label>
+                <label class="fc"><input type="checkbox" name="necesidades_especiales" value="Mascotas" id="mascotaCheck" onchange="toggleMascotas()"><span>Mascotas</span></label>
+            </div>
+            <div class="fg mt1" id="mascotaRow" style="display:none">
+                <label class="fl">¿Qué mascotas tienes? (tipo y tamaño)</label>
+                <input name="detalle_mascotas" class="fi" placeholder="Ej: 2 perros grandes, 1 gato">
+            </div>
+
+            <hr class="sep">
+
+            <!-- ═══ CONTACTO EMERGENCIA ═══ -->
+            <p class="section-title">📞 Contacto de emergencia</p>
+            <div class="fg">
+                <label class="fl">Teléfono de un familiar fuera de la zona</label>
+                <input name="telefono_emergencia" class="fi" placeholder="612 345 678">
+                <p style="font-size:.68rem;color:var(--dim);margin-top:.2rem">Alguien que pueda avisar si pierdes comunicación</p>
+            </div>
+
+            <button type="submit" class="btn btn-p btn-bl mt2" style="font-size:.95rem;padding:.7rem">Crear mi cuenta</button>
         </form>
     </div>
     <p class="auth-foot">¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a></p>
 </div>
+
+<script>
+// ── Contraseña ───────────────────────────
+function showPw(id){document.getElementById(id).type='text';}
+function hidePw(id){document.getElementById(id).type='password';}
+
+function checkPw(){
+    const pw=document.getElementById('pw1').value;
+    const rules=[[pw.length>=8,'r1'],[/[A-Z]/.test(pw),'r2'],[/[a-z]/.test(pw),'r3'],[/[0-9]/.test(pw),'r4'],[/[^A-Za-z0-9]/.test(pw),'r5']];
+    rules.forEach(([ok,id])=>{const el=document.getElementById(id);el.style.color=ok?'var(--green)':'var(--red)';el.textContent=(ok?'✓ ':'✕ ')+el.textContent.slice(2);});
+    checkMatch();
+}
+function checkMatch(){
+    const pw1=document.getElementById('pw1').value,pw2=document.getElementById('pw2').value,el=document.getElementById('pwMatch');
+    if(!pw2){el.textContent='';return;}
+    if(pw1===pw2){el.style.color='var(--green)';el.textContent='✓ Las contraseñas coinciden';}
+    else{el.style.color='var(--red)';el.textContent='✕ Las contraseñas no coinciden';}
+}
+
+// ── Mostrar/ocultar campos condicionales ─
+function togglePlanta(){document.getElementById('plantaRow').style.display=document.getElementById('vivSel').value==='Piso alto'?'':'none';}
+function toggleGaraje(){document.getElementById('garajeRow').style.display=document.getElementById('vehSel').value==='true'?'':'none';if(document.getElementById('vehSel').value==='false')document.getElementById('plantaGarajeRow').style.display='none';}
+function togglePlantaGaraje(){document.getElementById('plantaGarajeRow').style.display=document.getElementById('garSel').value==='true'?'':'none';}
+function toggleMascotas(){document.getElementById('mascotaRow').style.display=document.getElementById('mascotaCheck').checked?'':'none';}
+
+// ── Validación al enviar ─────────────────
+document.getElementById('regForm').addEventListener('submit',function(e){
+    const pw=document.getElementById('pw1').value;
+    const ok=pw.length>=8&&/[A-Z]/.test(pw)&&/[a-z]/.test(pw)&&/[0-9]/.test(pw)&&/[^A-Za-z0-9]/.test(pw);
+    if(!ok){e.preventDefault();alert('La contraseña no cumple todos los requisitos.');return;}
+    if(pw!==document.getElementById('pw2').value){e.preventDefault();alert('Las contraseñas no coinciden.');}
+});
+</script>
 {% endblock %}

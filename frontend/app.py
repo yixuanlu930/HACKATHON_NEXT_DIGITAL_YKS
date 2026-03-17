@@ -31,7 +31,6 @@ def api(method, path, json=None, token=None):
         headers["Authorization"] = f"Bearer {tk}"
     try:
         r = http.request(method, url, json=json, headers=headers, timeout=15)
-        # Si el backend dice 401 → token expirado → cerrar sesión
         if r.status_code == 401 and tk:
             session.clear()
         return r.json(), r.status_code
@@ -136,10 +135,25 @@ def registro():
             "email": f.get("email", "").strip(),
             "password": f.get("password", ""),
             "nombre": f.get("nombre", "").strip(),
+            "rol": "ciudadano",
+            # Ubicación
             "provincia": f.get("provincia", "Valencia"),
+            "municipio": f.get("municipio", "").strip(),
+            "codigo_postal": f.get("codigo_postal", "").strip(),
+            "cerca_cauce": f.get("cerca_cauce") == "true",
+            # Vivienda
             "tipo_vivienda": f.get("tipo_vivienda", ""),
+            "numero_planta": int(f.get("numero_planta") or 0),
+            "num_personas": int(f.get("num_personas") or 1),
+            # Vehículo
+            "tiene_vehiculo": f.get("tiene_vehiculo") == "true",
+            "garaje_subterraneo": f.get("garaje_subterraneo") == "true",
+            "planta_garaje": f.get("planta_garaje", ""),
+            # Necesidades
             "necesidades_especiales": ",".join(f.getlist("necesidades_especiales")),
-            "rol": "ciudadano",  # siempre ciudadano, admin se crea aparte
+            "detalle_mascotas": f.get("detalle_mascotas", "").strip(),
+            # Contacto
+            "telefono_emergencia": f.get("telefono_emergencia", "").strip(),
         }
 
         data, code = api("POST", "/api/auth/register", json=body)
@@ -174,8 +188,18 @@ def perfil():
         body = {
             "nombre": f.get("nombre", "").strip(),
             "provincia": f.get("provincia", ""),
+            "municipio": f.get("municipio", "").strip(),
+            "codigo_postal": f.get("codigo_postal", "").strip(),
+            "cerca_cauce": f.get("cerca_cauce") == "true",
             "tipo_vivienda": f.get("tipo_vivienda", ""),
+            "numero_planta": int(f.get("numero_planta") or 0),
+            "num_personas": int(f.get("num_personas") or 1),
+            "tiene_vehiculo": f.get("tiene_vehiculo") == "true",
+            "garaje_subterraneo": f.get("garaje_subterraneo") == "true",
+            "planta_garaje": f.get("planta_garaje", ""),
             "necesidades_especiales": ",".join(f.getlist("necesidades_especiales")),
+            "detalle_mascotas": f.get("detalle_mascotas", "").strip(),
+            "telefono_emergencia": f.get("telefono_emergencia", "").strip(),
         }
         data, code = api("PUT", "/api/auth/me", json=body)
         if code == 200:
@@ -198,7 +222,6 @@ def perfil():
 @app.route("/ciudadano")
 @login_required
 def citizen_dashboard():
-    # Obtener alertas del ciudadano
     alertas, _ = api("GET", "/api/citizen/alerts")
     if not isinstance(alertas, list):
         alertas = []

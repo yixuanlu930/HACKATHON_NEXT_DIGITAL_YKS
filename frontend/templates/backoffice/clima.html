@@ -13,17 +13,44 @@
 <div class="card"><div class="flash flash-danger">{{ error }}</div></div>
 {% elif weather %}
 <div class="card mb2">
-    <h3 class="mb2">📊 {{ provincia }}</h3>
+    <h3 class="mb2"> {{ provincia }}</h3>
     <div class="wg">
-        {% if weather.temperatura is defined %}<div class="wi"><div class="wi-l">Temperatura</div><div class="wi-v">{{ weather.temperatura }}°C</div></div>{% endif %}
-        {% if weather.precipitacion is defined %}<div class="wi"><div class="wi-l">Precipitación</div><div class="wi-v">{{ weather.precipitacion }} mm</div></div>{% endif %}
-        {% if weather.viento_kmh is defined %}<div class="wi"><div class="wi-l">Viento</div><div class="wi-v">{{ weather.viento_kmh }} km/h</div></div>{% endif %}
-        {% if weather.descripcion %}<div class="wi"><div class="wi-l">Condición</div><div class="wi-v" style="font-size:1rem">{{ weather.descripcion }}</div></div>{% endif %}
-        {% if weather.nivel_alerta %}<div class="wi"><div class="wi-l">Alerta</div><div class="wi-v"><span class="nv nv-{{ weather.nivel_alerta[0] }}">{{ weather.nivel_alerta|upper }}</span></div></div>{% endif %}
+        {% if weather.temperatura is defined %}
+        <div class="wi"><div class="wi-l">Temperatura</div><div class="wi-v">{{ weather.temperatura }}°C</div></div>
+        {% endif %}
+
+        {% if weather.humedad_relativa is defined %}
+        <div class="wi"><div class="wi-l">Humedad relativa</div><div class="wi-v">{{ weather.humedad_relativa }}%</div></div>
+        {% endif %}
+
+        {% if weather.probabilidad_precipitacion is defined %}
+        <div class="wi"><div class="wi-l">Prob. precipitación</div><div class="wi-v">{{ weather.probabilidad_precipitacion }}%</div></div>
+        {% endif %}
+
+        {% if weather.volumen_precipitacion is defined %}
+        <div class="wi"><div class="wi-l">Volumen lluvia</div><div class="wi-v">{{ weather.volumen_precipitacion }} mm</div></div>
+        {% endif %}
+
+        {% if weather.velocidad_viento is defined %}
+        <div class="wi"><div class="wi-l">Velocidad viento</div><div class="wi-v">{{ weather.velocidad_viento }} km/h</div></div>
+        {% endif %}
+
+        {% if weather.direccion_viento is defined %}
+        <div class="wi"><div class="wi-l">Dirección viento</div><div class="wi-v">{{ weather.direccion_viento }}°</div></div>
+        {% endif %}
+
+        {% if weather.presion_atmosferica is defined %}
+        <div class="wi"><div class="wi-l">Presión atmosférica</div><div class="wi-v">{{ weather.presion_atmosferica }} hPa</div></div>
+        {% endif %}
+
+        {% if weather.indice_uv is defined %}
+        <div class="wi"><div class="wi-l">Índice UV</div><div class="wi-v">{{ weather.indice_uv }}</div></div>
+        {% endif %}
+
+        {% if weather.nivel_alerta %}
+        <div class="wi"><div class="wi-l">Alerta</div><div class="wi-v"><span class="nv nv-{{ weather.nivel_alerta[0] }}">{{ weather.nivel_alerta|upper }}</span></div></div>
+        {% endif %}
     </div>
 </div>
-{% if weather.raw %}
-<div class="card"><h3 class="mb2">{ } JSON</h3><pre class="json">{{ weather.raw | tojson(indent=2) }}</pre></div>
-{% endif %}
 {% endif %}
 {% endblock %}

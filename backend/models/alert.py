@@ -1,6 +1,7 @@
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
-db = SQLAlchemy()
+# from flask_sqlalchemy import SQLAlchemy
+# db = SQLAlchemy()
+from extensions import db
 
 class Alert(db.Model):
     __tablename__ = "alerts"

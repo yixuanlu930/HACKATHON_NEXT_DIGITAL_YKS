@@ -63,14 +63,9 @@ def build_user_prompt_analyze(weather_data: dict) -> str:
     """
 
 
-def build_user_prompt(weather_data: dict) -> str:
-    """Construye el user_prompt con los datos meteorológicos actuales."""
-    return f"""Situación meteorológica actual en {weather_data.get('provincia')}:
-- Temperatura: {weather_data.get('temperatura')}°C
-- Precipitación: {weather_data.get('precipitacion')} mm
-- Viento: {weather_data.get('viento_kmh')} km/h
-- Condición: {weather_data.get('descripcion')}
-- Nivel de alerta detectado: {weather_data.get('nivel_alerta')}
+def build_user_prompt(user: dict) -> str:
+    """Construye el user_prompt en base al usuario"""
+    return f"""Situación meteorológica actual en {user.get('provincia')}:
 
 ¿Qué debe hacer este ciudadano para protegerse? Da instrucciones concretas y personalizadas."""
 

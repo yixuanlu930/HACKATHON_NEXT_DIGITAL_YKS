@@ -1,269 +1,323 @@
-ClimAlert Valencia
+# ClimAlert Valencia (YKS)
 
-Aplicación web para la gestión de emergencias climáticas en la Comunidad Valenciana.
-Desarrollada para el Hackathon UPM 2026 — Reto de Gestión de Emergencias Climáticas.
+Aplicación web para la **gestión de emergencias climáticas** en la **Comunidad Valenciana**, desarrollada para el **Hackathon UPM 2026 (Next Digital)** — Reto de Gestión de Emergencias Climáticas.
 
+La plataforma:
+- Consulta previsiones meteorológicas desde una **API externa**.
+- Emite **alertas** segmentadas por provincia (o globales).
+- Genera **recomendaciones personalizadas con IA (LLM)** combinando el estado meteorológico con el perfil del ciudadano (vivienda, ubicación, necesidades especiales, etc.).
 
-DESCRIPCIÓN
+---
 
-ClimAlert Valencia es una herramienta de soporte a la ciudadanía ante emergencias climáticas. La aplicación recupera previsiones meteorológicas de una API externa y, combinándolas con los datos del perfil del ciudadano (tipo de vivienda, ubicación, necesidades especiales), genera instrucciones personalizadas para proteger su vida mediante un LLM (modelo de lenguaje).
+## Tabla de contenidos
+- [Descripción](#descripción)
+- [Roles](#roles)
+- [Arquitectura](#arquitectura)
+- [Tecnologías](#tecnologías)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Instalación y ejecución](#instalación-y-ejecución)
+  - [Opción A — Local](#opción-a--local)
+  - [Opción B — Docker Compose](#opción-b--docker-compose)
+- [Variables de entorno](#variables-de-entorno)
+- [Credenciales de administrador (desarrollo)](#credenciales-de-administrador-desarrollo)
+- [Funcionalidades](#funcionalidades)
+- [API del backend](#api-del-backend)
+- [Modelo de datos (resumen)](#modelo-de-datos-resumen)
+- [Enfoque sostenible](#enfoque-sostenible)
+- [Equipo](#equipo)
+- [Licencia](#licencia)
 
-El sistema diferencia entre dos roles:
+---
 
-  Ciudadano: consulta el clima, recibe recomendaciones IA personalizadas según su perfil y recibe alertas emitidas por los administradores.
+## Descripción
 
-  Administrador (Backoffice): visualiza datos meteorológicos, gestiona alertas, consulta el historial global del sistema y administra usuarios.
+**ClimAlert Valencia** es una herramienta de soporte a la ciudadanía ante emergencias climáticas (p. ej. DANAs, lluvias intensas, viento fuerte, inundaciones, etc.).
 
+A partir de:
+1. **Datos meteorológicos** obtenidos de la API del hackathon, y
+2. **Perfil del ciudadano** (ubicación, tipo de vivienda, movilidad reducida, mascotas, cercanía a cauces/barrancos, etc.),
 
-ARQUITECTURA
+el sistema genera **recomendaciones de autoprotección** con un **LLM**, además de permitir a administradores emitir **alertas** y consultar el **historial del sistema**.
 
-El proyecto sigue una arquitectura cliente-servidor desacoplada:
+---
 
-  Frontend (Flask + Jinja2, puerto 3000) --> Backend (Flask REST, puerto 5000) --> API Hackathon (/weather, /prompt, EC2 AWS)
-                                                        |
-                                                        v
-                                               Base de datos (SQLite / MySQL)
+## Roles
 
-  Frontend: aplicación Flask que renderiza HTML con Jinja2 y llama al backend vía HTTP.
-  Backend: API REST Flask que gestiona autenticación (JWT), modelos de datos, y orquesta las llamadas a la API externa de clima y al LLM.
-  Base de datos: SQLite en desarrollo, compatible con MySQL en producción.
+- **Ciudadano**
+  - Consulta previsión meteorológica.
+  - Recibe **recomendaciones IA** personalizadas.
+  - Recibe **alertas** emitidas por administradores.
+  - Consulta su historial (meteo y recomendaciones).
 
+- **Administrador (Backoffice)**
+  - Visualiza datos meteorológicos por provincia.
+  - Crea/activa/desactiva alertas (verde/amarillo/rojo).
+  - Consulta el historial global del sistema.
+  - Administra usuarios y puede crear otros administradores.
 
-TECNOLOGÍAS
+---
 
-  Backend: Python 3.12, Flask, Flask-SQLAlchemy, Flask-JWT-Extended, Flask-CORS
-  Frontend: Python 3.12, Flask, Jinja2, HTML5, CSS3, JavaScript vanilla
-  Base de datos: SQLite (desarrollo) / MySQL 8.0 (producción con Docker)
-  API externa: Servicio meteorológico y LLM proporcionados por la organización del hackathon
-  Contenerización: Docker + Docker Compose
+## Arquitectura
 
+Arquitectura cliente-servidor desacoplada:
 
-ESTRUCTURA DEL PROYECTO
+```
+Frontend (Flask + Jinja2, :3000)
+        │  HTTP
+        ▼
+Backend (Flask REST API, :5000)  ───► API Hackathon (/weather, /prompt, EC2 AWS)
+        │
+        ▼
+Base de datos (SQLite dev / MySQL prod)
+```
 
-  YKS/
-    backend/
-      app.py                  Punto de entrada del backend, crea la app Flask
-      config.py               Configuración (DB, JWT, claves)
-      extensions.py           Instancias de SQLAlchemy y JWTManager
-      requirements.txt        Dependencias del backend
-      models/
-        user.py               Modelo de usuario (ciudadano/admin)
-        alert.py              Modelos: Alert, WeatherLog, LLMLog
-      routes/
-        auth.py               Registro, login, perfil (JWT)
-        citizen.py            Rutas del ciudadano (clima, recomendaciones, alertas)
-        backoffice.py         Rutas del admin (gestión alertas, usuarios, logs)
-      services/
-        weather_service.py    Conexión con la API de clima
-        llm_service.py        Prompt engineering + conexión con el LLM
-    frontend/
-      app.py                  Servidor web, rutas de vistas, proxy al backend
-      requirements.txt        Dependencias del frontend
-      static/
-        css/style.css         Estilos (tema dark, responsive)
-        js/app.js             Polling de alertas, notificaciones, toasts
-      templates/
-        base.html             Layout base con nav, alertas, campana
-        perfil.html           Edición de perfil del usuario
-        404.html              Página de error
-        auth/
-          login.html          Inicio de sesión
-          registro.html       Registro con perfil completo
-        ciudadano/
-          dashboard.html      Panel del ciudadano
-          clima.html          Datos meteorológicos
-          recomendaciones.html  Recomendaciones IA personalizadas
-          historial.html      Historial de consultas
-        backoffice/
-          dashboard.html      Panel de control admin
-          clima.html          Clima por provincia
-          historial.html      Historial global del sistema
-    docker/
-      Dockerfile.backend      Imagen Docker del backend
-      Dockerfile.frontend     Imagen Docker del frontend
-      docker-compose.yaml     Orquestación de servicios
-    .env                      Variables de entorno (tokens, claves)
-    .gitignore
+- **Frontend**: Flask que renderiza HTML (Jinja2) y consume el backend vía HTTP.
+- **Backend**: API REST en Flask con autenticación JWT, modelos de datos y orquestación de llamadas a la API externa (clima + LLM).
+- **Base de datos**: SQLite en desarrollo; compatible con MySQL en producción (Docker).
 
+---
 
-INSTALACIÓN Y EJECUCIÓN
+## Tecnologías
 
-Requisitos previos: Python 3.10 o superior, pip.
+- **Backend**: Python 3.12, Flask, Flask-SQLAlchemy, Flask-JWT-Extended, Flask-CORS  
+- **Frontend**: Python 3.12, Flask, Jinja2, HTML5, CSS3, JavaScript (vanilla)  
+- **Base de datos**: SQLite (desarrollo) / MySQL 8.0 (producción)  
+- **Infra/DevOps**: Docker + Docker Compose  
+- **Servicios externos**: API meteorológica y LLM proporcionados por la organización del hackathon  
 
-Opción 1: Ejecución local
+---
 
-  1. Clonar el repositorio:
+## Estructura del proyecto
 
-     git clone https://github.com/K06-Z/YKS.git
-     cd YKS
+```
+YKS/
+  backend/
+    app.py                  Punto de entrada del backend (crea la app Flask)
+    config.py               Configuración (DB, JWT, claves)
+    extensions.py           Instancias de SQLAlchemy y JWTManager
+    requirements.txt        Dependencias del backend
+    models/
+      user.py               Modelo de usuario (ciudadano/admin)
+      alert.py              Modelos: Alert, WeatherLog, LLMLog
+    routes/
+      auth.py               Registro, login, perfil (JWT)
+      citizen.py            Rutas del ciudadano (clima, recomendaciones, alertas)
+      backoffice.py         Rutas del admin (alertas, usuarios, logs)
+    services/
+      weather_service.py    Conexión con la API de clima
+      llm_service.py        Prompt engineering + conexión con el LLM
 
-  2. Configurar variables de entorno. Crear un fichero .env en la raíz del proyecto:
+  frontend/
+    app.py                  Servidor web, rutas de vistas, proxy al backend
+    requirements.txt        Dependencias del frontend
+    static/
+      css/style.css         Estilos (dark, responsive)
+      js/app.js             Polling de alertas, notificaciones, toasts
+    templates/
+      base.html             Layout base con nav, alertas, campana
+      perfil.html           Edición de perfil
+      404.html              Página de error
+      auth/
+        login.html
+        registro.html
+      ciudadano/
+        dashboard.html
+        clima.html
+        recomendaciones.html
+        historial.html
+      backoffice/
+        dashboard.html
+        clima.html
+        historial.html
 
-     SECRET_KEY=tu-clave-secreta
-     JWT_SECRET_KEY=tu-clave-jwt
-     DATABASE_URL=sqlite:///hackathon.db
-     BEARER_TOKEN=tu-token-del-hackathon
+  docker/
+    Dockerfile.backend
+    Dockerfile.frontend
+    docker-compose.yaml
 
-  3. Instalar dependencias e iniciar el backend:
+  .env                      Variables de entorno (tokens, claves)
+  .gitignore
+```
 
-     cd backend
-     pip install -r requirements.txt
-     python app.py
+---
 
-     El backend arranca en http://localhost:5000. Al iniciar por primera vez, se crea automáticamente un usuario administrador:
+## Instalación y ejecución
 
-     Email: admin@climalert.es
-     Contraseña: Admin123!
+### Requisitos
+- **Python 3.10+** (recomendado 3.12)
+- `pip`
+- (Opcional) **Docker + Docker Compose**
 
-  4. Instalar dependencias e iniciar el frontend (en otra terminal):
+---
 
-     cd frontend
-     pip install -r requirements.txt
-     python app.py
+### Opción A — Local
 
-     El frontend arranca en http://localhost:3000.
+1) Clonar el repo:
+```bash
+git clone https://github.com/ZyroEolu-sk/YKS.git
+cd YKS
+```
 
-Opción 2: Docker Compose
+2) Crear `.env` en la raíz del proyecto (ver ejemplo abajo).
 
-     cd docker
-     docker-compose up --build
+3) Backend:
+```bash
+cd backend
+pip install -r requirements.txt
+python app.py
+```
+Backend: `http://localhost:5000`
 
-     La aplicación estará disponible en http://localhost:3000.
+4) Frontend (otra terminal):
+```bash
+cd frontend
+pip install -r requirements.txt
+python app.py
+```
+Frontend: `http://localhost:3000`
 
+---
 
-FUNCIONALIDADES
+### Opción B — Docker Compose
 
-1. Registro y gestión de perfil
+```bash
+cd docker
+docker-compose up --build
+```
 
-El registro recoge información detallada del ciudadano para personalizar las recomendaciones:
+Aplicación: `http://localhost:3000`
 
-  Ubicación: provincia, municipio, código postal, cercanía a cauces/barrancos.
-  Vivienda: tipo (sótano, semisótano, planta baja, piso alto, casa de campo, urbanización cerrada), número de planta, personas en el hogar.
-  Vehículo: disponibilidad, garaje subterráneo y planta del garaje.
-  Necesidades especiales: silla de ruedas, movilidad reducida, persona dependiente, persona mayor, mascotas (con detalle), niños pequeños.
-  Contacto de emergencia: teléfono.
+---
 
-Dos roles de usuario:
+## Variables de entorno
 
-  Ciudadano: acceso a clima, recomendaciones, alertas e historial personal.
-  Administrador: acceso al panel de control, gestión de alertas, historial global.
+Crear un fichero `.env` en la raíz del proyecto (ejemplo):
 
-2. Vista de Ciudadano
+```env
+SECRET_KEY=tu-clave-secreta
+JWT_SECRET_KEY=tu-clave-jwt
+DATABASE_URL=sqlite:///hackathon.db
+BEARER_TOKEN=tu-token-del-hackathon
+```
 
-  Datos meteorológicos: visualización de la previsión obtenida de la API externa.
-  Recomendaciones IA personalizadas: el LLM analiza el clima actual junto con el perfil completo del ciudadano y genera instrucciones específicas (adaptadas a tipo de vivienda, necesidades especiales, cercanía a cauces, etc.).
-  Alertas activas: banners visibles, campana de notificaciones con polling automático cada 15 segundos, y toasts con sonido cuando llegan alertas nuevas.
-  Historial: registro de todas las consultas meteorológicas y recomendaciones del LLM.
+> Nota: si usas MySQL en Docker/producción, `DATABASE_URL` deberá apuntar a tu instancia MySQL (según el `docker-compose.yaml`).
 
-3. Vista de Backoffice (Administrador)
+---
 
-  Panel de control: estadísticas de ciudadanos registrados, alertas activas y totales, con listados desplegables.
-  Datos meteorológicos: consulta de clima por provincia.
-  Gestión de alertas: creación de alertas con nivel (verde, amarillo, rojo), título, mensaje y provincia destino. Posibilidad de desactivar alertas.
-  Crear administradores: formulario para crear nuevas cuentas de administrador.
-  Historial global: registro de todas las consultas meteorológicas y al LLM de todos los usuarios.
+## Credenciales de administrador (desarrollo)
 
-4. Integración LLM — Prompt Engineering
+Al arrancar por primera vez, se crea automáticamente un usuario administrador:
 
-La personalización de las recomendaciones se logra mediante Prompt Engineering. El system_prompt incluye el perfil completo del ciudadano y reglas específicas para la Comunidad Valenciana (DANAs, ramblas, barrancos). El user_prompt incluye los datos meteorológicos actuales.
+- Email: `admin@climalert.es`
+- Contraseña: `Admin123!`
 
-Ejemplo de personalización:
+> Recomendación: cambiar estas credenciales en cualquier despliegue no local.
 
-  Un ciudadano en sótano cerca de un barranco con silla de ruedas recibe instrucciones de evacuación vertical asistida con máxima urgencia.
-  Un ciudadano en piso alto sin necesidades especiales recibe instrucciones de precaución ante viento y recomendación de no salir.
+---
 
-5. Sistema de alertas en tiempo casi real
+## Funcionalidades
 
+### 1) Registro y perfil del ciudadano
+El registro recoge información para personalizar recomendaciones:
+- **Ubicación**: provincia, municipio, código postal, cercanía a cauces/barrancos.
+- **Vivienda**: tipo (sótano/semisótano/planta baja/piso alto/casa de campo/urbanización), planta, nº de personas.
+- **Vehículo**: disponibilidad, garaje subterráneo y planta.
+- **Necesidades especiales**: movilidad reducida, persona dependiente/mayor, mascotas (detalle), niños pequeños.
+- **Contacto de emergencia**: teléfono.
+
+### 2) Vista Ciudadano
+- **Datos meteorológicos** desde API externa.
+- **Recomendaciones IA** adaptadas al perfil y al clima.
+- **Alertas activas**:
+  - Banner visible en páginas.
+  - Campana de notificaciones con indicador.
+  - Toast con sonido al recibir nuevas alertas.
+- **Historial** (meteo + recomendaciones).
+
+### 3) Vista Backoffice (Administrador)
+- Estadísticas de ciudadanos y alertas.
+- Clima por provincia.
+- Gestión de alertas (crear / desactivar) con niveles **verde / amarillo / rojo**.
+- Creación de nuevos administradores.
+- Historial global (consultas meteo y LLM).
+
+### 4) Integración con LLM (Prompt Engineering)
+Las recomendaciones se generan mediante prompts que incluyen:
+- Perfil completo del ciudadano (system prompt).
+- Datos meteorológicos actuales (user prompt).
+- Reglas contextualizadas para la Comunidad Valenciana (ramblas, barrancos, DANAs, etc.).
+
+### 5) Sistema de alertas casi en tiempo real
 Cuando un administrador emite una alerta:
+1. Se guarda en base de datos.
+2. Se distribuye a ciudadanos por provincia (o a todos).
+3. El frontend hace **polling cada 15s** para mostrar nuevas alertas sin refrescar.
 
-  1. Se almacena en base de datos con nivel, título, mensaje y provincia.
-  2. Los ciudadanos de esa provincia (o todos, si no se especifica) la reciben mediante:
-     Banner visible en todas las páginas.
-     Campana de notificaciones con indicador de alerta nueva.
-     Toast emergente con sonido de alerta.
-  3. El sistema hace polling cada 15 segundos para detectar alertas nuevas sin necesidad de refrescar la página.
+---
 
+## API del backend
 
-API DEL BACKEND
+### Autenticación
+- `POST /api/auth/register` — Registro de ciudadano  
+- `POST /api/auth/login` — Login (devuelve JWT)  
+- `GET  /api/auth/me` — Perfil del usuario autenticado  
+- `PUT  /api/auth/me` — Actualizar perfil  
 
-Autenticación:
+### Ciudadano (requiere JWT)
+- `GET /api/citizen/weather` — Datos meteorológicos  
+- `GET /api/citizen/recommendations` — Recomendaciones IA  
+- `GET /api/citizen/alerts` — Alertas activas (por provincia)  
+- `GET /api/citizen/history/weather` — Historial meteo  
+- `GET /api/citizen/history/llm` — Historial LLM  
 
-  POST  /api/auth/register             Registro de ciudadano
-  POST  /api/auth/login                Inicio de sesión (devuelve JWT)
-  GET   /api/auth/me                   Obtener perfil del usuario autenticado
-  PUT   /api/auth/me                   Actualizar perfil
+### Backoffice (requiere JWT + rol admin)
+- `GET    /api/backoffice/weather/<prov>` — Clima por provincia  
+- `GET    /api/backoffice/alerts` — Listar alertas  
+- `POST   /api/backoffice/alerts` — Crear/emitir alerta  
+- `DELETE /api/backoffice/alerts/<id>` — Desactivar alerta  
+- `POST   /api/backoffice/create-admin` — Crear administrador  
+- `GET    /api/backoffice/users` — Listar ciudadanos  
+- `GET    /api/backoffice/logs/weather` — Historial global meteo  
+- `GET    /api/backoffice/logs/llm` — Historial global LLM  
 
-Ciudadano (requiere JWT):
+---
 
-  GET   /api/citizen/weather            Obtener datos meteorológicos
-  GET   /api/citizen/recommendations    Obtener recomendaciones IA personalizadas
-  GET   /api/citizen/alerts             Obtener alertas activas para su provincia
-  GET   /api/citizen/history/weather    Historial de consultas meteorológicas
-  GET   /api/citizen/history/llm        Historial de recomendaciones del LLM
+## Modelo de datos (resumen)
 
-Backoffice (requiere JWT + rol admin):
+**User**
+- `email` (único), `nombre`, `rol` (ciudadano/admin)
+- `provincia`, `municipio`, `codigo_postal`, `cerca_cauce`
+- `tipo_vivienda`, `numero_planta`, `num_personas`
+- `tiene_vehiculo`, `garaje_subterraneo`, `planta_garaje`
+- `necesidades_especiales`, `detalle_mascotas`, `telefono_emergencia`
 
-  GET   /api/backoffice/weather/<prov>  Clima por provincia
-  GET   /api/backoffice/alerts          Listar todas las alertas
-  POST  /api/backoffice/alerts          Crear y emitir alerta
-  DELETE /api/backoffice/alerts/<id>    Desactivar alerta
-  POST  /api/backoffice/create-admin    Crear nuevo administrador
-  GET   /api/backoffice/users           Listar ciudadanos registrados
-  GET   /api/backoffice/logs/weather    Historial global de consultas meteo
-  GET   /api/backoffice/logs/llm        Historial global de consultas al LLM
+**Alert**
+- `titulo`, `mensaje`, `nivel` (verde/amarillo/rojo)
+- `provincia` (vacío = todas), `activa`
+- `creado_por`, `creado_en`
 
+**WeatherLog / LLMLog**
+- Logs de consultas meteorológicas e interacciones con el LLM por usuario.
 
-MODELO DE DATOS
+---
 
-User:
+## Enfoque sostenible
 
-  email                  String     Email único del usuario
-  nombre                 String     Nombre completo
-  rol                    String     ciudadano o admin
-  provincia              String     Provincia de residencia
-  municipio              String     Municipio
-  codigo_postal          String     Código postal
-  cerca_cauce            Boolean    Vive cerca de barranco/rambla/cauce
-  tipo_vivienda          String     Sótano, Semisótano, Planta baja, Piso alto, etc.
-  numero_planta          Integer    Planta del edificio
-  num_personas           Integer    Personas en el hogar
-  tiene_vehiculo         Boolean    Dispone de vehículo
-  garaje_subterraneo     Boolean    Garaje bajo tierra
-  planta_garaje          String     Planta del garaje
-  necesidades_especiales String     Lista de necesidades especiales
-  detalle_mascotas       String     Tipo y número de mascotas
-  telefono_emergencia    String     Contacto de emergencia
+ClimAlert contribuye a la resiliencia climática mediante:
+- **Prevención de daños**: recomendaciones personalizadas para fenómenos extremos.
+- **Concienciación**: el ciudadano entiende riesgos según su situación real.
+- **Accesibilidad**: atención a colectivos vulnerables (movilidad reducida, dependientes, etc.).
+- **Reducción de desplazamientos innecesarios**: instrucciones claras evitan exposición a riesgo.
 
-Alert:
+---
 
-  titulo                 String     Título de la alerta
-  mensaje                Text       Contenido de la alerta
-  nivel                  String     verde, amarillo o rojo
-  provincia              String     Provincia destino (vacío = todas)
-  activa                 Boolean    Estado de la alerta
-  creado_por             Integer    ID del admin que la creó
-  creado_en              DateTime   Fecha de creación
+## Equipo
 
-WeatherLog / LLMLog:
+**Equipo 💵💵💵** — Universidad Politécnica de Madrid, Hackathon 2026.
+- 
 
-  Tablas de historial que registran cada consulta meteorológica y cada interacción con el LLM, asociadas al usuario que las realizó.
+---
 
+## Licencia
 
-ENFOQUE SOSTENIBLE
-
-ClimAlert contribuye a la gestión ecológica y sostenible del campus y la comunidad:
-
-  Prevención de daños: las recomendaciones personalizadas reducen el impacto humano y material de fenómenos extremos como las DANAs.
-  Concienciación climática: el ciudadano interactúa directamente con datos meteorológicos reales y comprende los riesgos asociados a su situación concreta.
-  Accesibilidad: el perfil detallado permite atender a personas con movilidad reducida, dependientes y otros colectivos vulnerables que suelen quedar desatendidos en alertas genéricas.
-  Reducción de desplazamientos innecesarios: instrucciones claras evitan que los ciudadanos se expongan a riesgos o realicen evacuaciones no necesarias.
-
-
-EQUIPO
-
-Equipo $$$ YKS — Universidad Politécnica de Madrid, Hackathon 2026
-
-
-LICENCIA
-
-Proyecto desarrollado para el Hackathon UPM 2026 organizado por Next Digital.
+Proyecto desarrollado para el **Hackathon UPM 2026** organizado por **Next Digital**.
